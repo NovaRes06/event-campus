@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <title>Dashboard Anggota - E-Panitia</title>
     
-    <link rel="stylesheet" href="../assets/css/style.css?v=105">
-    
+    <link rel="stylesheet" href="../assets/css/style.css?v=107">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
         /* Warna Sidebar Khusus Anggota (Biru Muda) */
         .role-badge { background: #dbeafe; color: #1e40af; } 
         
-        /* Tombol Detail */
+        /* Tombol Detail Kecil */
         .btn-detail { 
             background: #6366f1; color: white; border: none; 
             padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; 
@@ -27,10 +26,16 @@
             transition: 0.2s;
         }
         .task-item:hover { background-color: #f8fafc; }
+
+        /* Badge Status */
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #d97706; } /* Kuning */
+        .status-process { background: #e0e7ff; color: #3b82f6; } /* Biru */
         
-        /* Fix Background */
+        /* Fix Background & Modal */
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
+        .modal-overlay { z-index: 9999 !important; }
     </style>
 </head>
 <body>
@@ -50,7 +55,7 @@
                 <a href="anggota.html" class="menu-item active">
                     <i class="ph-bold ph-check-square-offset"></i> Tugas Saya
                 </a>
-                <a href="#" class="menu-item">
+                <a href="view_notulensi.html" class="menu-item">
                     <i class="ph-bold ph-chats-circle"></i> Notulensi
                 </a>
                 <a href="#" class="menu-item">
@@ -68,8 +73,8 @@
         <main class="main-content">
             
             <div class="welcome-section">
-                <h1>Semangat, Budi Anggota! 🚀</h1>
-                <p>Cek tugas yang harus kamu selesaikan hari ini.</p>
+                <h1>Semangat, Budi! 🚀</h1>
+                <p>Kamu punya 2 tugas yang harus diselesaikan.</p>
             </div>
 
             <div class="stats-grid">
@@ -86,43 +91,79 @@
             </div>
 
             <div class="content-card">
-                <h3 style="margin-bottom: 20px;">Daftar Tugas (Jobdesk)</h3>
+                <h3 style="margin-bottom: 20px;">Jobdesk Saya 📝</h3>
                 
                 <div class="task-item">
                     <div>
-                        <h4 style="margin-bottom: 5px; font-size: 14px; color: #334155;">Desain Poster Instagram</h4>
-                        <span style="font-size: 11px; background: #fee2e2; color: #ef4444; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
-                            Deadline: Besok
-                        </span>
+                        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 2px;">INSPACE 2025 / Acara</div>
+                        <h4 style="margin: 0; font-size: 14px; color: #334155;">Konsep Rundown Acara</h4>
+                        <div style="margin-top: 5px;">
+                            <span class="status-badge status-process">Sedang Dikerjakan</span>
+                        </div>
                     </div>
-                    <a href="#" class="btn-detail">Detail</a>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: #ef4444; font-weight: 600; margin-bottom: 5px;">20 Jan 2025</div>
+                        <button class="btn-detail" onclick="openModal('Konsep Rundown Acara', 'Membuat susunan acara lengkap dari pembukaan sampai penutupan.', 'Process')">Detail</button>
+                    </div>
                 </div>
 
                 <div class="task-item">
                     <div>
-                        <h4 style="margin-bottom: 5px; font-size: 14px; color: #334155;">Hubungi Pemateri Seminar</h4>
-                        <span style="font-size: 11px; background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
-                            Deadline: 20 Nov 2025
-                        </span>
+                        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 2px;">INSPACE 2025 / Humas</div>
+                        <h4 style="margin: 0; font-size: 14px; color: #334155;">Hubungi Pemateri Seminar</h4>
+                        <div style="margin-top: 5px;">
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
                     </div>
-                    <a href="#" class="btn-detail">Detail</a>
-                </div>
-
-                <div class="task-item">
-                    <div>
-                        <h4 style="margin-bottom: 5px; font-size: 14px; color: #94a3b8; text-decoration: line-through;">
-                            Booking Gedung Serbaguna
-                        </h4>
-                        <span style="font-size: 11px; background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
-                            Selesai
-                        </span>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: #ef4444; font-weight: 600; margin-bottom: 5px;">25 Jan 2025</div>
+                        <button class="btn-detail" onclick="openModal('Hubungi Pemateri Seminar', 'Menghubungi Pak Sandiaga Uno untuk konfirmasi kehadiran.', 'Pending')">Detail</button>
                     </div>
-                    <span style="font-size: 24px; color: #10b981;"><i class="ph-fill ph-check-circle"></i></span>
                 </div>
 
             </div>
         </main>
     </div>
+
+    <div id="modalDetail" class="modal-overlay" style="display: none;">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <div class="modal-title">Detail Tugas</div>
+                <button onclick="closeModal()" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3 id="taskTitle" style="color: #6366f1; margin-bottom: 10px;">Judul Tugas</h3>
+                
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p id="taskDesc" style="color: #475569; font-size: 14px; line-height: 1.6;">Deskripsi tugas...</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Update Status</label>
+                    <select class="form-control" id="taskStatus">
+                        <option value="Pending">Pending (Belum Mulai)</option>
+                        <option value="Process">On Progress (Sedang Dikerjakan)</option>
+                        <option value="Done">Selesai</option>
+                    </select>
+                </div>
+
+                <button class="btn-login" onclick="closeModal()" style="margin-top: 10px;">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(title, desc, status) {
+            document.getElementById('modalDetail').style.display = 'flex';
+            document.getElementById('taskTitle').innerText = title;
+            document.getElementById('taskDesc').innerText = desc;
+            document.getElementById('taskStatus').value = status;
+        }
+
+        function closeModal() {
+            document.getElementById('modalDetail').style.display = 'none';
+        }
+    </script>
 
 </body>
 </html>
