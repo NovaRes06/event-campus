@@ -58,7 +58,7 @@
                 <a href="data_anggota.php" class="menu-item active">
                     <i class="ph-bold ph-users-three"></i> Data Anggota
                 </a>
-                <a href="#" class="menu-item">
+                <a href="data_laporan.php" class="menu-item">
                     <i class="ph-bold ph-clipboard-text"></i> Laporan
                 </a>
                 

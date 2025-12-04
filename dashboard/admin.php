@@ -37,20 +37,20 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] != 'admin' && $_SESSION['rol
                     <i class="ph-bold ph-squares-four"></i> Dashboard
                 </a>
 
-                <a href="#" class="menu-item">
+                <a href="data_event.php" class="menu-item">
                     <i class="ph-bold ph-calendar-plus"></i> Data Event
                 </a>
 
-                <a href="#" class="menu-item">
+                <a href="data_anggota.php" class="menu-item">
                     <i class="ph-bold ph-users-three"></i> Data Anggota
                 </a> 
 
-                <a href="#" class="menu-item">
+                <a href="data_laporan.php" class="menu-item">
                     <i class="ph-bold ph-clipboard-text"></i> Laporan
                 </a>
                 
                 <div class="menu-logout">
-                    <a href="#" class="menu-item" style="color: #ef4444;">
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
                         <i class="ph-bold ph-sign-out"></i> Logout
                     </a>
                 </div>

@@ -62,15 +62,15 @@
             </div>
             
             <nav>
-                <a href="admin.html" class="menu-item">
+                <a href="admin.php" class="menu-item">
                     <i class="ph-bold ph-squares-four"></i> Dashboard
                 </a>
 
-                <a href="adm_data_event.html" class="menu-item active">
+                <a href="adm_data_event.php" class="menu-item active">
                     <i class="ph-bold ph-calendar-plus"></i> Data Event
                 </a>
 
-                <a href="data_anggota.html" class="menu-item">
+                <a href="data_anggota.php" class="menu-item">
                     <i class="ph-bold ph-users-three"></i> Data Anggota
                 </a> 
 
@@ -79,7 +79,7 @@
                 </a>
                 
                 <div class="menu-logout">
-                    <a href="index.html" class="menu-item" style="color: #ef4444;">
+                    <a href="index.php" class="menu-item" style="color: #ef4444;">
                         <i class="ph-bold ph-sign-out"></i> Logout
                     </a>
                 </div>
