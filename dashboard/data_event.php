@@ -101,7 +101,9 @@ if (!isset($_SESSION['role'])) {
                             <td><span class="<?= $statusClass; ?>"><?= $row['status']; ?></span></td>
                             <td style="text-align: center; color: #475569;"><b><?= $divisi; ?></b> Divisi</td>
                             <td>
-                                <button class="btn-kelola" onclick="openModal('<?= addslashes($row['nama_event']); ?>')"><i class="ph-bold ph-gear"></i> Kelola</button>
+                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola">
+                                    <i class="ph-bold ph-gear"></i> Kelola Full
+                                </a>
                             </td>
                         </tr>
                         <?php 
