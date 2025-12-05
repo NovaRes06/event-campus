@@ -71,17 +71,17 @@
             </div>
             
             <nav>
-                <a href="admin.html" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
-                <a href="data_event.html" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                <a href="data_anggota.html" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                <a href="adm_laporan.html" class="menu-item"><i class="ph-bold ph-clipboard-text"></i> Laporan</a>
+                <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+                <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
+                <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
+                <a href="data_laporan.php" class="menu-item"><i class="ph-bold ph-clipboard-text"></i> Laporan</a>
                 
-                <a href="profil.html" class="menu-item active">
+                <a href="profil.php" class="menu-item active">
                     <i class="ph-bold ph-user-gear"></i> Profil Saya
                 </a>
                 
                 <div class="menu-logout">
-                    <a href="index.html" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a>
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a>
                 </div>
             </nav>
         </aside>
