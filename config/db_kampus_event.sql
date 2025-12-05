@@ -85,4 +85,5 @@ INSERT INTO jobdesk (divisi_id, user_id, nama_tugas, deadline, status) VALUES
 (1, 2, 'Konsep Rundown Acara', '2025-01-10', 'Process'),
 (1, NULL, 'Booking Gedung Serbaguna', '2025-01-12', 'Pending');
 
+ALTER TABLE events ADD COLUMN jumlah_divisi INT DEFAULT 0;
 SHOW TABLES;

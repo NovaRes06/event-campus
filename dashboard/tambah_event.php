@@ -1,3 +1,49 @@
+<?php
+session_start();
+require '../config/koneksi.php'; 
+
+// Cek Login
+if (!isset($_SESSION['role'])) {
+    header("Location: ../index.php");
+    exit;
+}
+
+if (isset($_POST['simpan'])) {
+    // Cek Koneksi $conn dari koneksi.php
+    if (!isset($conn)) {
+        die("Error: Variabel koneksi (\$conn) tidak ditemukan.");
+    }
+
+    // Tangkap data dari form
+    $nama_event = mysqli_real_escape_string($conn, $_POST['nama_event']);
+    $deskripsi  = mysqli_real_escape_string($conn, $_POST['deskripsi']);
+    
+    // Nama variabel PHP ini diambil dari name="" di form HTML
+    $tgl_mulai_input  = $_POST['tgl_mulai']; 
+    $tgl_selesai_input= $_POST['tgl_selesai'];
+    
+    $status = 'active'; // Sesuaikan dengan ENUM di database ('pending', 'active', etc)
+    $jumlah_divisi = 0;
+
+    // PERBAIKAN PENTING DISINI:
+    // Kolom database: tanggal_mulai, tanggal_selesai (Sesuai file sql)
+    // Nilai yg dimasukkan: $tgl_mulai_input, $tgl_selesai_input (Sesuai form)
+    $query = "INSERT INTO events (nama_event, deskripsi, tanggal_mulai, tanggal_selesai, status, jumlah_divisi) 
+              VALUES ('$nama_event', '$deskripsi', '$tgl_mulai_input', '$tgl_selesai_input', '$status', '$jumlah_divisi')";
+
+    if (mysqli_query($conn, $query)) {
+        echo "<script>
+                alert('Event berhasil ditambahkan! ✨');
+                window.location='data_event.php';
+              </script>";
+    } else {
+        echo "<script>
+                alert('Gagal menyimpan event: " . mysqli_error($conn) . "');
+              </script>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

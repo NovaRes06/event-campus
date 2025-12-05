@@ -1,36 +1,86 @@
+<?php
+session_start();
+require '../config/koneksi.php'; // Hubungkan ke database
+
+// Cek keamanan
+if (!isset($_SESSION['role'])) {
+    header("Location: ../index.php");
+    exit;
+}
+
+// --- LOGIKA SIMPAN DATA (TAMBAH & EDIT) ---
+if (isset($_POST['simpan'])) {
+    $id    = $_POST['user_id']; // Tangkap ID (Hidden Input)
+    $nama  = mysqli_real_escape_string($conn, $_POST['nama_lengkap']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $role  = $_POST['peran'];
+
+    if (empty($id)) {
+        // --- MODE TAMBAH (INSERT) ---
+        // Cek email kembar
+        $cek_email = mysqli_query($conn, "SELECT email FROM users WHERE email = '$email'");
+        if (mysqli_num_rows($cek_email) > 0) {
+            echo "<script>alert('Email sudah terdaftar!');</script>";
+        } else {
+            // Password default untuk user baru
+            $pass_input = !empty($_POST['password']) ? $_POST['password'] : 'mhs123';
+            $password   = password_hash($pass_input, PASSWORD_DEFAULT);
+
+            $query = "INSERT INTO users (nama_lengkap, email, password, peran) VALUES ('$nama', '$email', '$password', '$role')";
+            
+            if (mysqli_query($conn, $query)) {
+                echo "<script>alert('Anggota berhasil ditambahkan!'); window.location='data_anggota.php';</script>";
+            } else {
+                echo "<script>alert('Gagal: " . mysqli_error($conn) . "');</script>";
+            }
+        }
+    } else {
+        // --- MODE EDIT (UPDATE) ---
+        // Update data tanpa mengubah password
+        $query = "UPDATE users SET nama_lengkap='$nama', email='$email', peran='$role' WHERE user_id='$id'";
+        
+        if (mysqli_query($conn, $query)) {
+            echo "<script>alert('Data anggota berhasil diupdate!'); window.location='data_anggota.php';</script>";
+        } else {
+            echo "<script>alert('Gagal update: " . mysqli_error($conn) . "');</script>";
+        }
+    }
+}
+
+// --- LOGIKA HAPUS DATA ---
+if (isset($_GET['hapus'])) {
+    $id = $_GET['hapus'];
+    $query = "DELETE FROM users WHERE user_id='$id'";
+    
+    if (mysqli_query($conn, $query)) {
+        echo "<script>alert('Data berhasil dihapus!'); window.location='data_anggota.php';</script>";
+    } else {
+        echo "<script>alert('Gagal menghapus: " . mysqli_error($conn) . "'); window.location='data_anggota.php';</script>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Data Anggota - E-PANITIA</title>
-    
     <link rel="stylesheet" href="../assets/css/style.css?v=105">
-    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
         .text-center { text-align: center !important; }
         .text-left { text-align: left !important; }
-        
-        /* Container Nama (Sekarang cuma teks) */
         .user-profile { display: flex; align-items: center; }
-        
         .role-tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
         .role-admin { background: #fee2e2; color: #991b1b; }
         .role-anggota { background: #dbeafe; color: #1e40af; }
-        
-        /* Dropdown Styles */
+        .role-ketua { background: #dcfce7; color: #166534; }
         .action-container { position: relative; }
-        .dropdown-menu { 
-            display: none; position: absolute; right: 0; top: 100%; 
-            background: white; border: 1px solid #eee; border-radius: 8px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; min-width: 150px; overflow: hidden;
-        }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; min-width: 150px; overflow: hidden; }
         .show { display: block; }
         .dropdown-item { display: block; padding: 10px; color: #333; text-decoration: none; font-size: 13px; text-align: left; }
         .dropdown-item:hover { background: #f8fafc; }
-        
-        /* Global Styles fix */
         .modal-overlay { z-index: 9999 !important; }
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
@@ -42,31 +92,17 @@
     <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
-        
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2 class="brand-title">E-PANITIA</h2>
                 <span class="role-badge">Administrator</span>
             </div>
             <nav>
-                <a href="admin.php" class="menu-item">
-                    <i class="ph-bold ph-squares-four"></i> Dashboard
-                </a>
-                <a href="data_event.php" class="menu-item">
-                    <i class="ph-bold ph-calendar-plus"></i> Data Event
-                </a>
-                <a href="data_anggota.php" class="menu-item active">
-                    <i class="ph-bold ph-users-three"></i> Data Anggota
-                </a>
-                <a href="data_laporan.php" class="menu-item">
-                    <i class="ph-bold ph-clipboard-text"></i> Laporan
-                </a>
-                
-                <div class="menu-logout">
-                    <a href="#" class="menu-item" style="color: #ef4444;">
-                        <i class="ph-bold ph-sign-out"></i> Logout
-                    </a>
-                </div>
+                <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
+                <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
+                <a href="data_anggota.php" class="menu-item active"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
+                <a href="data_laporan.php" class="menu-item"><i class="ph-bold ph-clipboard-text"></i> Laporan</a>
+                <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
             </nav>
         </aside>
 
@@ -93,59 +129,49 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <?php
+                        $no = 1;
+                        $query = mysqli_query($conn, "SELECT * FROM users ORDER BY user_id DESC");
                         
+                        if(mysqli_num_rows($query) > 0){
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                if($row['peran'] == 'admin') $badge = 'role-admin';
+                                else if($row['peran'] == 'ketua') $badge = 'role-ketua';
+                                else $badge = 'role-anggota';
+                        ?>
                         <tr>
-                            <td class="text-center">1</td>
+                            <td class="text-center"><?= $no++; ?></td>
                             <td>
                                 <div class="user-profile">
-                                    <span style="font-weight: 600; color: #334155;">Si Paling Admin</span>
+                                    <span style="font-weight: 600; color: #334155;"><?= htmlspecialchars($row['nama_lengkap']); ?></span>
                                 </div>
                             </td>
-                            <td>admin@kampus.id</td>
-                            <td class="text-center"><span class="role-tag role-admin">ADMIN</span></td>
+                            <td><?= htmlspecialchars($row['email']); ?></td>
+                            <td class="text-center">
+                                <span class="role-tag <?= $badge; ?>"><?= strtoupper($row['peran']); ?></span>
+                            </td>
                             <td class="text-center" style="overflow: visible;">
                                 <div class="action-container">
-                                    <button class="btn-dots" onclick="toggleDropdown(1)">
+                                    <button class="btn-dots" onclick="toggleDropdown(<?= $row['user_id']; ?>)">
                                         <i class="ph-bold ph-dots-three-vertical"></i>
                                     </button>
-                                    <div id="dropdown-1" class="dropdown-menu">
-                                        <a href="#" class="dropdown-item" onclick="openEdit('1', 'Si Paling Admin', 'admin@kampus.id', 'admin')">
+                                    <div id="dropdown-<?= $row['user_id']; ?>" class="dropdown-menu">
+                                        <a href="#" class="dropdown-item" onclick="openEdit('<?= $row['user_id']; ?>', '<?= addslashes($row['nama_lengkap']); ?>', '<?= $row['email']; ?>', '<?= $row['peran']; ?>')">
                                             <i class="ph-bold ph-pencil-simple"></i> Edit
                                         </a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td>
-                                <div class="user-profile">
-                                    <span style="font-weight: 600; color: #334155;">Budi Anggota</span>
-                                </div>
-                            </td>
-                            <td>budi@kampus.id</td>
-                            <td class="text-center"><span class="role-tag role-anggota">ANGGOTA</span></td>
-                            <td class="text-center" style="overflow: visible;">
-                                <div class="action-container">
-                                    <button class="btn-dots" onclick="toggleDropdown(2)">
-                                        <i class="ph-bold ph-dots-three-vertical"></i>
-                                    </button>
-                                    <div id="dropdown-2" class="dropdown-menu">
-                                        <a href="#" class="dropdown-item" onclick="openEdit('2', 'Budi Santoso', 'budi@kampus.id', 'anggota')">
-                                            <i class="ph-bold ph-pencil-simple"></i> Edit
-                                        </a>
-                                        <a href="#" class="dropdown-item">
-                                            <i class="ph-bold ph-key"></i> Reset Pass
-                                        </a>
-                                        <a href="#" class="dropdown-item" style="color: red;">
+                                        <a href="data_anggota.php?hapus=<?= $row['user_id']; ?>" class="dropdown-item" style="color: red;" onclick="return confirm('Yakin ingin menghapus <?= addslashes($row['nama_lengkap']); ?>?')">
                                             <i class="ph-bold ph-trash"></i> Hapus
                                         </a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-
+                        <?php 
+                            }
+                        } else {
+                            echo "<tr><td colspan='5' class='text-center' style='padding:20px;'>Belum ada data anggota.</td></tr>";
+                        } 
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -159,28 +185,33 @@
                 <button onclick="document.getElementById('modalUser').style.display='none'" class="btn-close">&times;</button>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="POST">
+                    <input type="hidden" name="user_id" id="user_id">
+
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" id="nama_lengkap" class="form-control" required>
+                        <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Kampus</label>
-                        <input type="email" id="email" class="form-control" required>
+                        <input type="email" name="email" id="email" class="form-control" required>
                     </div>
+                    
                     <div class="form-group" id="pass_div">
                         <label class="form-label">Password Default</label>
-                        <input type="text" class="form-control" value="mhs123">
+                        <input type="text" name="password" class="form-control" value="mhs123">
+                        <small style="color: #64748b;">Biarkan default "mhs123".</small>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Role</label>
-                        <select id="peran" class="form-control">
+                        <select name="peran" id="peran" class="form-control">
                             <option value="anggota">Anggota</option>
                             <option value="ketua">Ketua</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <button type="button" class="btn-login" style="margin-top: 10px;">Simpan Data</button>
+                    <button type="submit" name="simpan" class="btn-login" style="margin-top: 10px;">Simpan Data</button>
                 </form>
             </div>
         </div>
@@ -192,25 +223,33 @@
             const menu = document.getElementById('dropdown-' + id);
             if (menu) menu.classList.toggle('show');
         }
+        
         window.onclick = function(event) {
-            if (!event.target.matches('.btn-dots') && !event.target.matches('.ph-dots-three-vertical')) {
+            if (!event.target.closest('.action-container')) {
                 document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
             }
         }
+        
+        // Mode Tambah: Kosongkan form & ID
         function openModal() {
             document.getElementById('modalUser').style.display = 'flex';
             document.getElementById('modalTitle').innerText = 'Registrasi Akun Baru';
+            document.getElementById('user_id').value = ''; // ID Kosong = Insert
             document.getElementById('nama_lengkap').value = '';
             document.getElementById('email').value = '';
-            document.getElementById('pass_div').style.display = 'block';
+            document.getElementById('peran').value = 'anggota';
+            document.getElementById('pass_div').style.display = 'block'; // Tampilkan Password
         }
+
+        // Mode Edit: Isi form dengan data lama & ID
         function openEdit(id, nama, email, peran) {
             document.getElementById('modalUser').style.display = 'flex';
             document.getElementById('modalTitle').innerText = 'Edit Data Anggota';
+            document.getElementById('user_id').value = id; // ID Terisi = Update
             document.getElementById('nama_lengkap').value = nama;
             document.getElementById('email').value = email;
             document.getElementById('peran').value = peran;
-            document.getElementById('pass_div').style.display = 'none';
+            document.getElementById('pass_div').style.display = 'none'; // Sembunyikan Password saat edit
         }
     </script>
 
