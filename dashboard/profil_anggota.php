@@ -74,19 +74,20 @@
             </div>
             
             <nav>
-                <a href="anggota.html" class="menu-item">
+                <a href="anggota.php" class="menu-item">
                     <i class="ph-bold ph-check-square-offset"></i> Tugas Saya
                 </a>
-                <a href="view_notulensi.html" class="menu-item">
+                
+                <a href="view_notulensi.php" class="menu-item">
                     <i class="ph-bold ph-chats-circle"></i> Notulensi
                 </a>
                 
-                <a href="profil_anggota.html" class="menu-item active">
+                <a href="profil_anggota.php" class="menu-item active">
                     <i class="ph-bold ph-user-gear"></i> Profil
                 </a>
                 
                 <div class="menu-logout">
-                    <a href="../index.html" class="menu-item" style="color: #ef4444;">
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
                         <i class="ph-bold ph-sign-out"></i> Logout
                     </a>
                 </div>
