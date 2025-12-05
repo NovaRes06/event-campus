@@ -167,7 +167,7 @@ if (isset($_GET['hapus_anggota'])) {
             <nav>
                 <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
                 <a href="data_event.php" class="menu-item active"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Panitia</a> 
+                <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a> 
                 <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
             </nav>
         </aside>
@@ -232,20 +232,6 @@ if (isset($_GET['hapus_anggota'])) {
                                         <i class="ph-bold ph-trash"></i>
                                     </a>
                                 </div>
-<<<<<<< HEAD
-=======
-                                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                                    <?= $deskripsi; ?>...
-                                </div>
-                            </td>
-                            <td style="font-size: 13px; color: #475569;"><?= $tgl; ?></td>
-                            <td><span class="<?= $statusClass; ?>"><?= $row['status']; ?></span></td>
-                            <td style="text-align: center; color: #475569;"><b><?= $divisi; ?></b> Divisi</td>
-                            <td>
-                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola">
-                                    <i class="ph-bold ph-gear"></i> Kelola Full
-                                </a>
->>>>>>> 7f733da01298b851207f3834d6b4df65958cec78
                             </td>
                         </tr>
                         <?php 
