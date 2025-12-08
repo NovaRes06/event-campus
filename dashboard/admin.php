@@ -15,7 +15,7 @@ $queryEvent = mysqli_query($conn, "SELECT COUNT(*) AS total FROM events WHERE st
 $dataEvent = mysqli_fetch_assoc($queryEvent);
 $totalEvent = $dataEvent['total'];
 
-// 2. Hitung Total Anggota (Semua user kecuali admin, opsional bisa dihapus WHERE-nya jika ingin hitung semua)
+// 2. Hitung Total Anggota (Semua user kecuali admin)
 $queryAnggota = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE peran != 'admin'");
 $dataAnggota = mysqli_fetch_assoc($queryAnggota);
 $totalAnggota = $dataAnggota['total'];
@@ -68,10 +68,6 @@ $totalDone = $dataDone['total'];
                 <a href="data_anggota.php" class="menu-item">
                     <i class="ph-bold ph-users-three"></i> Data Anggota
                 </a> 
-
-                <a href="data_laporan.php" class="menu-item">
-                    <i class="ph-bold ph-clipboard-text"></i> Laporan
-                </a>
                 
                 <div class="menu-logout">
                     <a href="../logout.php" class="menu-item" style="color: #ef4444;">

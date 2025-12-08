@@ -17,7 +17,6 @@ if (isset($_POST['simpan'])) {
 
     if (empty($id)) {
         // --- MODE TAMBAH (INSERT) ---
-        // Cek email kembar
         $cek_email = mysqli_query($conn, "SELECT email FROM users WHERE email = '$email'");
         if (mysqli_num_rows($cek_email) > 0) {
             echo "<script>alert('Email sudah terdaftar! Gunakan email lain.');</script>";
@@ -33,13 +32,11 @@ if (isset($_POST['simpan'])) {
             if (mysqli_query($conn, $query)) {
                 echo "<script>alert('Anggota berhasil ditambahkan!'); window.location='data_anggota.php';</script>";
             } else {
-                // Tampilkan error spesifik MySQL untuk debugging
                 echo "<script>alert('Gagal menambah anggota: " . mysqli_error($conn) . "');</script>";
             }
         }
     } else {
         // --- MODE EDIT (UPDATE) ---
-        // Update data tanpa mengubah password
         $query = "UPDATE users SET nama_lengkap='$nama', email='$email', peran='$role' WHERE user_id='$id'";
         
         if (mysqli_query($conn, $query)) {
@@ -103,7 +100,6 @@ if (isset($_GET['hapus'])) {
                 <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
                 <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
                 <a href="data_anggota.php" class="menu-item active"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                <a href="data_laporan.php" class="menu-item"><i class="ph-bold ph-clipboard-text"></i> Laporan</a>
                 <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
             </nav>
         </aside>
@@ -137,7 +133,6 @@ if (isset($_GET['hapus'])) {
                         
                         if(mysqli_num_rows($query) > 0){
                             while ($row = mysqli_fetch_assoc($query)) {
-                                // Sesuai ERD: Role hanya Admin & Anggota
                                 $badge = ($row['peran'] == 'admin') ? 'role-admin' : 'role-anggota';
                         ?>
                         <tr>

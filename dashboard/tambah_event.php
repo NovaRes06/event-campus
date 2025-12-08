@@ -32,8 +32,18 @@ if (isset($_POST['simpan'])) {
               VALUES ('$nama_event', '$deskripsi', '$tgl_mulai_input', '$tgl_selesai_input', '$status', '$jumlah_divisi')";
 
     if (mysqli_query($conn, $query)) {
+        // Ambil ID Event yang baru saja dibuat
+        $last_id = mysqli_insert_id($conn);
+
+        // OTOMATIS BUAT DIVISI 'BPH'
+        $queryBPH = "INSERT INTO divisi (event_id, nama_divisi) VALUES ('$last_id', 'BPH')";
+        mysqli_query($conn, $queryBPH);
+
+        // Update jumlah divisi jadi 1
+        mysqli_query($conn, "UPDATE events SET jumlah_divisi = 1 WHERE event_id = '$last_id'");
+
         echo "<script>
-                alert('Event berhasil ditambahkan! ✨');
+                alert('Event berhasil ditambahkan! Divisi Badan Pengurus Harian otomatis dibuat. ✨');
                 window.location='data_event.php';
               </script>";
     } else {

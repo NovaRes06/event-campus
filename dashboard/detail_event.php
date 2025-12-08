@@ -9,6 +9,7 @@ $id_event = isset($_GET['id']) ? $_GET['id'] : '';
 $my_role_global = $_SESSION['role']; // 'admin' atau 'anggota'
 
 // 1. Ambil Info Event & Role User di Event Ini
+// Gunakan LEFT JOIN agar Admin yang tidak terdaftar di anggota_divisi tetap bisa mengambil data event
 $qCek = mysqli_query($conn, "
     SELECT e.*, d.divisi_id, d.nama_divisi, ad.jabatan 
     FROM events e
@@ -24,6 +25,7 @@ $my_divisi_name = "";
 
 while ($row = mysqli_fetch_assoc($qCek)) {
     if ($info === null) $info = $row; 
+    // Cari baris dimana user ini terdaftar (jika ada)
     if ($row['jabatan'] != null) {
         $my_divisi = $row['divisi_id'];
         $my_jabatan = $row['jabatan'];
@@ -31,18 +33,19 @@ while ($row = mysqli_fetch_assoc($qCek)) {
     }
 }
 
-// Cek Hak Akses
+// --- CEK HAK AKSES ---
 $is_super_admin = ($my_role_global == 'admin');
 $is_ketua_event = ($my_jabatan == 'Ketua');
 $is_koordinator = ($my_jabatan == 'Koordinator');
 $is_sekretaris  = ($my_jabatan == 'Sekretaris');
 
+// Jika bukan admin, dan tidak terdaftar di event ini -> TENDANG
 if (!$is_super_admin && $my_jabatan == null) {
     echo "<script>alert('Akses ditolak! Kamu bukan panitia event ini.'); window.location='anggota.php';</script>";
     exit;
 }
 
-// View All: Admin & Ketua bisa lihat semua divisi & notulensi
+// Hak Akses Global (Melihat semua divisi & notulensi)
 $view_all_divisions = ($is_super_admin || $is_ketua_event);
 
 
@@ -53,10 +56,9 @@ if (isset($_POST['simpan_notulensi'])) {
     $tgl = $_POST['tanggal'];
     $jenis = $_POST['jenis']; 
     
-    // Tentukan Divisi ID (NULL jika Umum, atau ID Divisi User jika Rapat Divisi)
-    // Jika Admin/Ketua buat 'Rapat Divisi', harusnya ada dropdown pilih divisi (tapi disederhanakan dulu ke NULL/Umum atau logic lain).
-    // Untuk saat ini asumsi: Jika 'Rapat Umum' -> NULL. Jika 'Rapat Divisi' -> ID Divisi User pembuat (kecuali admin/ketua yg tidak punya divisi spesifik).
-    
+    // Tentukan Divisi ID 
+    // Jika 'Rapat Umum' -> NULL. 
+    // Jika 'Rapat Divisi' -> ID Divisi User pembuat (jika Admin/Ketua buat rapat divisi, sementara masuk ke NULL/Umum atau butuh dropdown tambahan, disini kita simplifikasi).
     $div_target = "NULL";
     if ($jenis == 'Rapat Divisi' && !$view_all_divisions) {
         $div_target = "'$my_divisi'";
@@ -69,7 +71,6 @@ if (isset($_POST['simpan_notulensi'])) {
 
 if (isset($_GET['hapus_notulensi'])) {
     $id_not = $_GET['hapus_notulensi'];
-    // Validasi sederhana: Admin/Ketua bebas hapus. Lainnya cek kepemilikan (skip dulu utk simplifikasi)
     mysqli_query($conn, "DELETE FROM notulensi WHERE notulensi_id='$id_not'");
     echo "<script>window.location='detail_event.php?id=$id_event&tab=notulensi';</script>";
 }
@@ -82,18 +83,22 @@ if (isset($_POST['update_jobdesk'])) {
     $pic = !empty($_POST['pic_id']) ? $_POST['pic_id'] : "NULL"; 
 
     $allow_update = false;
+    
+    // Validasi siapa yang boleh update
     if ($view_all_divisions) {
-        $allow_update = true;
+        $allow_update = true; // Admin & Ketua bebas
     } elseif ($is_koordinator) {
+        // Koordinator hanya boleh update tugas di divisinya
         $cekDiv = mysqli_query($conn, "SELECT divisi_id FROM jobdesk WHERE jobdesk_id='$jid'");
         $d = mysqli_fetch_assoc($cekDiv);
         if ($d['divisi_id'] == $my_divisi) $allow_update = true;
     } else {
+        // Staff hanya boleh update status tugasnya sendiri
         $cekOwner = mysqli_query($conn, "SELECT user_id FROM jobdesk WHERE jobdesk_id='$jid'");
         $o = mysqli_fetch_assoc($cekOwner);
         if ($o['user_id'] == $id_user) {
             $allow_update = true;
-            $pic = $id_user; // Staff tidak boleh ganti PIC
+            $pic = $id_user; // Staff tidak boleh ganti PIC, paksa tetep dia
         }
     }
 
@@ -108,7 +113,7 @@ if (isset($_POST['update_jobdesk'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard <?= $info['nama_event'] ?></title>
+    <title>Dashboard <?= htmlspecialchars($info['nama_event']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css?v=115">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
@@ -128,6 +133,12 @@ if (isset($_POST['update_jobdesk'])) {
         .select-xs { padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; background: white; max-width: 150px; }
         .badge-divisi { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
         
+        /* STATUS WARNA */
+        .status-Pending { color: #d97706; font-weight: 700; }
+        .status-Process { color: #2563eb; font-weight: 700; }
+        .status-Revision { color: #ea580c; font-weight: 700; }
+        .status-Done { color: #166534; font-weight: 700; }
+
         /* NOTULENSI */
         .notulensi-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; transition: 0.2s; }
         .notulensi-card:hover { border-color: #6366f1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -150,16 +161,22 @@ if (isset($_POST['update_jobdesk'])) {
                 <i class="ph-bold ph-arrow-left"></i> Kembali
             </a>
 
+            <?php if($is_super_admin || $is_ketua_event): ?>
+            <a href="edit_event.php?id=<?= $id_event ?>" class="btn-kelola" style="margin-bottom: 20px; background: #6366f1; width: 100%; justify-content: center;">
+                <i class="ph-bold ph-gear"></i> Pengaturan Event
+            </a>
+            <?php endif; ?>
+
             <div style="padding: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid white;">
                 <small style="text-transform: uppercase; font-weight: 700; color: #64748b;">Event Saat Ini</small>
-                <h3 style="font-size: 16px; margin: 5px 0; color: #1e293b;"><?= $info['nama_event'] ?></h3>
+                <h3 style="font-size: 16px; margin: 5px 0; color: #1e293b;"><?= htmlspecialchars($info['nama_event']) ?></h3>
                 
                 <?php if($is_super_admin): ?>
-                    <div class="divisi-tag" style="background:#fcd34d; color:#92400e;">Mode Pantau (Admin)</div>
+                    <div class="divisi-tag" style="background:#fcd34d; color:#92400e; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Mode Pantau (Admin)</div>
                 <?php elseif($is_ketua_event): ?>
-                    <div class="divisi-tag" style="background:#c084fc; color:#fff;">Ketua Pelaksana</div>
+                    <div class="divisi-tag" style="background:#c084fc; color:#fff; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Ketua Pelaksana</div>
                 <?php else: ?>
-                    <div class="divisi-tag">Divisi <?= $my_divisi_name ?></div>
+                    <div class="divisi-tag" style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
                 <?php endif; ?>
             </div>
         </aside>
@@ -211,6 +228,7 @@ if (isset($_POST['update_jobdesk'])) {
 
                             while($row = mysqli_fetch_assoc($qJob)):
                                 $is_mine = ($row['user_id'] == $id_user);
+                                // Logic edit: Admin/Ketua bisa semua. Koordinator bisa di divisinya. Staff bisa punya sendiri.
                                 $can_assign_pic = ($view_all_divisions || ($is_koordinator && $row['divisi_id'] == $my_divisi));
                                 $can_edit_status = ($can_assign_pic || $is_mine);
                             ?>
@@ -219,7 +237,7 @@ if (isset($_POST['update_jobdesk'])) {
                                     <?php if($view_all_divisions): ?>
                                         <span class="badge-divisi"><?= $row['nama_divisi'] ?></span><br>
                                     <?php endif; ?>
-                                    <span style="font-weight: 600; color: #334155;"><?= $row['nama_tugas'] ?></span>
+                                    <span style="font-weight: 600; color: #334155;"><?= htmlspecialchars($row['nama_tugas']) ?></span>
                                 </td>
                                 
                                 <td>
@@ -254,15 +272,15 @@ if (isset($_POST['update_jobdesk'])) {
                                             <input type="hidden" name="pic_id" value="<?= $row['user_id'] ?>">
                                             <input type="hidden" name="update_jobdesk" value="1">
                                             
-                                            <select name="status" ... >
+                                            <select name="status" class="select-xs status-<?= $row['status'] ?>" style="width:100%;" onchange="this.form.submit()">
                                                 <option value="Pending" <?= $row['status']=='Pending'?'selected':'' ?>>Pending</option>
                                                 <option value="Process" <?= $row['status']=='Process'?'selected':'' ?>>On Progress</option>
-                                                <option value="Revision" <?= $row['status']=='Revision'?'selected':'' ?> style="color:#d97706; font-weight:bold;">Perlu Revisi</option>
+                                                <option value="Revision" <?= $row['status']=='Revision'?'selected':'' ?>>Perlu Revisi</option>
                                                 <option value="Done" <?= $row['status']=='Done'?'selected':'' ?>>Done</option>
                                             </select>
                                         </form>
                                     <?php else: ?>
-                                        <span class="badge-purple" style="font-size: 11px;"><?= $row['status'] ?></span>
+                                        <span class="status-<?= $row['status'] ?>" style="font-size: 11px;"><?= $row['status'] ?></span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -288,7 +306,6 @@ if (isset($_POST['update_jobdesk'])) {
                 $sqlNote = "SELECT * FROM notulensi WHERE event_id='$id_event'";
                 
                 if (!$view_all_divisions) {
-                    // Anggota biasa: Rapat Umum OR Rapat Divisi Saya
                     $sqlNote .= " AND (jenis_rapat = 'Rapat Umum' OR divisi_id = '$my_divisi')";
                 }
                 
@@ -300,7 +317,7 @@ if (isset($_POST['update_jobdesk'])) {
                 while($note = mysqli_fetch_assoc($qNote)):
                     $badgeType = ($note['jenis_rapat'] == 'Rapat Umum') ? 'background:#e0e7ff; color:#4338ca;' : 'background:#dcfce7; color:#166534;';
                     
-                    // Logic Hak Edit/Hapus
+                    // Hak edit
                     $can_manage_note = false;
                     if ($view_all_divisions) {
                         $can_manage_note = true;
@@ -315,8 +332,8 @@ if (isset($_POST['update_jobdesk'])) {
                         </span>
                         <span style="font-size: 12px; color: #64748b;"><?= date('d M Y, H:i', strtotime($note['tanggal_rapat'])) ?></span>
                     </div>
-                    <h4 style="margin-bottom: 10px;"><?= $note['judul_notulen'] ?></h4>
-                    <p style="color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-line;"><?= $note['isi_pembahasan'] ?></p>
+                    <h4 style="margin-bottom: 10px;"><?= htmlspecialchars($note['judul_notulen']) ?></h4>
+                    <p style="color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-line;"><?= htmlspecialchars($note['isi_pembahasan']) ?></p>
                     
                     <?php if($can_manage_note): ?>
                     <div style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px; text-align: right;">
@@ -347,7 +364,7 @@ if (isset($_POST['update_jobdesk'])) {
                             <?php endif; ?>
                             
                             <?php if($my_divisi_name): ?>
-                                <option value="Rapat Divisi">Rapat Internal Divisi <?= $my_divisi_name ?></option>
+                                <option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option>
                             <?php endif; ?>
                         </select>
                     </div>

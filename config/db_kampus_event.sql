@@ -102,3 +102,11 @@ ALTER TABLE jobdesk MODIFY COLUMN status ENUM('Pending', 'Process', 'Revision', 
 
 -- 4. Sesuaikan Enum Event (Menambah Upcoming & Archived jika mau)
 ALTER TABLE events MODIFY COLUMN status ENUM('upcoming', 'active', 'completed', 'cancelled', 'archived') DEFAULT 'upcoming';
+
+-- Masukkan divisi 'BPH' untuk semua event yang sudah ada
+INSERT INTO divisi (event_id, nama_divisi)
+SELECT event_id, 'Badan Pengurus Harian' FROM events;
+
+-- Update jumlah divisi di tabel events agar sinkron
+UPDATE events e 
+SET jumlah_divisi = (SELECT COUNT(*) FROM divisi d WHERE d.event_id = e.event_id);
