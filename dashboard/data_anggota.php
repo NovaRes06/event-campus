@@ -20,18 +20,21 @@ if (isset($_POST['simpan'])) {
         // Cek email kembar
         $cek_email = mysqli_query($conn, "SELECT email FROM users WHERE email = '$email'");
         if (mysqli_num_rows($cek_email) > 0) {
-            echo "<script>alert('Email sudah terdaftar!');</script>";
+            echo "<script>alert('Email sudah terdaftar! Gunakan email lain.');</script>";
         } else {
-            // Password default untuk user baru
+            // 1. Password default MD5
             $pass_input = !empty($_POST['password']) ? $_POST['password'] : 'mhs123';
-            $password   = password_hash($pass_input, PASSWORD_DEFAULT);
+            $password   = md5($pass_input);
 
-            $query = "INSERT INTO users (nama_lengkap, email, password, peran) VALUES ('$nama', '$email', '$password', '$role')";
+            // 2. Insert Data (Set perlu_ganti_pass = 1)
+            $query = "INSERT INTO users (nama_lengkap, email, password, peran, perlu_ganti_pass) 
+                      VALUES ('$nama', '$email', '$password', '$role', 1)";
             
             if (mysqli_query($conn, $query)) {
                 echo "<script>alert('Anggota berhasil ditambahkan!'); window.location='data_anggota.php';</script>";
             } else {
-                echo "<script>alert('Gagal: " . mysqli_error($conn) . "');</script>";
+                // Tampilkan error spesifik MySQL untuk debugging
+                echo "<script>alert('Gagal menambah anggota: " . mysqli_error($conn) . "');</script>";
             }
         }
     } else {
@@ -75,7 +78,6 @@ if (isset($_GET['hapus'])) {
         .role-tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
         .role-admin { background: #fee2e2; color: #991b1b; }
         .role-anggota { background: #dbeafe; color: #1e40af; }
-        .role-ketua { background: #dcfce7; color: #166534; }
         .action-container { position: relative; }
         .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; min-width: 150px; overflow: hidden; }
         .show { display: block; }
@@ -135,9 +137,8 @@ if (isset($_GET['hapus'])) {
                         
                         if(mysqli_num_rows($query) > 0){
                             while ($row = mysqli_fetch_assoc($query)) {
-                                if($row['peran'] == 'admin') $badge = 'role-admin';
-                                else if($row['peran'] == 'ketua') $badge = 'role-ketua';
-                                else $badge = 'role-anggota';
+                                // Sesuai ERD: Role hanya Admin & Anggota
+                                $badge = ($row['peran'] == 'admin') ? 'role-admin' : 'role-anggota';
                         ?>
                         <tr>
                             <td class="text-center"><?= $no++; ?></td>
@@ -200,14 +201,13 @@ if (isset($_GET['hapus'])) {
                     <div class="form-group" id="pass_div">
                         <label class="form-label">Password Default</label>
                         <input type="text" name="password" class="form-control" value="mhs123">
-                        <small style="color: #64748b;">Biarkan default "mhs123".</small>
+                        <small style="color: #64748b;">Akan di-hash otomatis (MD5). User baru wajib menggantinya nanti.</small>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Role</label>
                         <select name="peran" id="peran" class="form-control">
                             <option value="anggota">Anggota</option>
-                            <option value="ketua">Ketua</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
@@ -230,26 +230,24 @@ if (isset($_GET['hapus'])) {
             }
         }
         
-        // Mode Tambah: Kosongkan form & ID
         function openModal() {
             document.getElementById('modalUser').style.display = 'flex';
             document.getElementById('modalTitle').innerText = 'Registrasi Akun Baru';
-            document.getElementById('user_id').value = ''; // ID Kosong = Insert
+            document.getElementById('user_id').value = ''; 
             document.getElementById('nama_lengkap').value = '';
             document.getElementById('email').value = '';
             document.getElementById('peran').value = 'anggota';
-            document.getElementById('pass_div').style.display = 'block'; // Tampilkan Password
+            document.getElementById('pass_div').style.display = 'block'; 
         }
 
-        // Mode Edit: Isi form dengan data lama & ID
         function openEdit(id, nama, email, peran) {
             document.getElementById('modalUser').style.display = 'flex';
             document.getElementById('modalTitle').innerText = 'Edit Data Anggota';
-            document.getElementById('user_id').value = id; // ID Terisi = Update
+            document.getElementById('user_id').value = id; 
             document.getElementById('nama_lengkap').value = nama;
             document.getElementById('email').value = email;
             document.getElementById('peran').value = peran;
-            document.getElementById('pass_div').style.display = 'none'; // Sembunyikan Password saat edit
+            document.getElementById('pass_div').style.display = 'none'; 
         }
     </script>
 

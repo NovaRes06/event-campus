@@ -1,14 +1,14 @@
 <?php
-// --- LOGIKA PHP (JANGAN DIHAPUS) ---
 session_start();
-
-// Cek koneksi database
+// Cek file koneksi
 if (file_exists('config/koneksi.php')) {
     include 'config/koneksi.php';
 } else {
+    // Fallback jika path berbeda
     $conn = false; 
 }
 
+// Redirect jika sudah login
 if (isset($_SESSION['status']) && $_SESSION['status'] == "login") {
     if ($_SESSION['role'] == 'admin') {
         header("Location: dashboard/admin.php");
@@ -22,32 +22,42 @@ $error = "";
 
 if (isset($_POST['login'])) {
     if (!$conn) {
-        $error = "Error: File koneksi.php tidak ditemukan!";
+        $error = "Error: Koneksi database tidak terhubung.";
     } else {
-        $email = $_POST['email'];
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
         $password = $_POST['password'];
+        
+        // --- LOGIKA MD5 ---
+        // Karena database sudah di-convert ke MD5, input user juga harus di-MD5
+        $password_md5 = md5($password);
 
-        $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
+        $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email' AND password='$password_md5'");
         
         if (mysqli_num_rows($query) > 0) {
             $data = mysqli_fetch_assoc($query);
-            if ($password == $data['password']) {
-                $_SESSION['user_id'] = $data['user_id'];
-                $_SESSION['nama'] = $data['nama_lengkap'];
-                $_SESSION['role'] = $data['peran'];
-                $_SESSION['status'] = "login";
+            
+            $_SESSION['user_id'] = $data['user_id'];
+            $_SESSION['nama'] = $data['nama_lengkap'];
+            $_SESSION['role'] = $data['peran'];
+            $_SESSION['status'] = "login";
 
-                if ($data['peran'] == 'admin') {
-                    header("Location: dashboard/admin.php");
+            if ($data['peran'] == 'admin') {
+                header("Location: dashboard/admin.php");
+            } else {
+                // --- LOGIC BARU SESUAI ERD ---
+                if ($data['perlu_ganti_pass'] == 1) {
+                    // Jika user baru, paksa ke profil dan suruh ganti password
+                    echo "<script>
+                        alert('Demi keamanan, User Baru WAJIB mengganti password default!');
+                        window.location='dashboard/profil_anggota.php?wajib_ganti=1';
+                    </script>";
                 } else {
                     header("Location: dashboard/anggota.php");
                 }
-                exit;
-            } else {
-                $error = "Password yang kamu masukkan salah.";
             }
+            exit;
         } else {
-            $error = "Email tidak terdaftar di sistem.";
+            $error = "Email atau Password salah.";
         }
     }
 }
@@ -73,7 +83,7 @@ if (isset($_POST['login'])) {
     <div class="login-card">
         
         <h1 class="brand-title">E-PANITIA</h1>
-        <p class="welcome-text">Selamat Datang! Warnai harimu dengan produktivitas 🚀</p>
+        <p class="welcome-text">Selamat Datang!</p>
 
         <?php if($error): ?>
             <div class="alert-error">

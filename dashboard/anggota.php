@@ -1,41 +1,43 @@
+<?php
+session_start();
+require '../config/koneksi.php';
+
+// Cek keamanan
+if (!isset($_SESSION['role'])) { header("Location: ../index.php"); exit; }
+$id_user = $_SESSION['user_id'];
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Anggota - E-Panitia</title>
-    
-    <link rel="stylesheet" href="../assets/css/style.css?v=107">
+    <title>Beranda Anggota - E-Panitia</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
     <style>
-        /* Warna Sidebar Khusus Anggota (Biru Muda) */
         .role-badge { background: #dbeafe; color: #1e40af; } 
-        
-        /* Tombol Detail Kecil */
-        .btn-detail { 
-            background: #6366f1; color: white; border: none; 
-            padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; 
-            text-decoration: none; display: inline-block;
-        }
-        .btn-detail:hover { background: #4f46e5; }
-
-        /* Item List Tugas */
-        .task-item {
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 15px; border-bottom: 1px solid #f1f5f9;
-            transition: 0.2s;
-        }
-        .task-item:hover { background-color: #f8fafc; }
-
-        /* Badge Status */
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-        .status-pending { background: #fef3c7; color: #d97706; } /* Kuning */
-        .status-process { background: #e0e7ff; color: #3b82f6; } /* Biru */
-        
-        /* Fix Background & Modal */
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
-        .modal-overlay { z-index: 9999 !important; }
+        
+        /* Card Event Custom */
+        .event-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
+            border: 1px solid #f1f5f9; display: flex; flex-direction: column;
+            height: 100%;
+        }
+        .event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .event-header { height: 100px; background: linear-gradient(135deg, #6366f1, #8b5cf6); position: relative; }
+        .event-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .event-badge { 
+            position: absolute; top: 15px; right: 15px; 
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: white;
+            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        }
+        .divisi-tag {
+            background: #eff6ff; color: #2563eb; padding: 5px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -53,21 +55,13 @@
             
             <nav>
                 <a href="anggota.php" class="menu-item active">
-                    <i class="ph-bold ph-check-square-offset"></i> Tugas Saya
+                    <i class="ph-bold ph-house"></i> Beranda
                 </a>
-                
-                <a href="view_notulensi.php" class="menu-item">
-                    <i class="ph-bold ph-chats-circle"></i> Notulensi
-                </a>
-                
                 <a href="profil_anggota.php" class="menu-item">
                     <i class="ph-bold ph-user"></i> Profil
                 </a>
-                
                 <div class="menu-logout">
-                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
-                        <i class="ph-bold ph-sign-out"></i> Logout
-                    </a>
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a>
                 </div>
             </nav>
         </aside>
@@ -75,97 +69,93 @@
         <main class="main-content">
             
             <div class="welcome-section">
-                <h1>Semangat, Budi! 🚀</h1>
-                <p>Kamu punya 2 tugas yang harus diselesaikan.</p>
+                <h1>Halo, <?= $_SESSION['nama']; ?>! 👋</h1>
+                <p>Pilih event untuk melihat tugas dan notulensi.</p>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card card-orange">
-                    <i class="ph-bold ph-clock stat-icon"></i>
-                    <div class="stat-number">2</div>
-                    <div class="stat-label">Tugas Pending</div>
+            <h3 style="margin-bottom: 20px;">Event Aktif Saya 🚀</h3>
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                <?php
+                // Query Event Aktif yang diikuti user
+                $qActive = mysqli_query($conn, "
+                    SELECT e.*, d.nama_divisi, ad.jabatan 
+                    FROM events e
+                    JOIN divisi d ON e.event_id = d.event_id
+                    JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id
+                    WHERE ad.user_id = '$id_user' AND e.status IN ('active', 'pending')
+                    ORDER BY e.tanggal_mulai ASC
+                ");
+
+                if (mysqli_num_rows($qActive) > 0) {
+                    while ($row = mysqli_fetch_assoc($qActive)) {
+                ?>
+                <div class="event-card">
+                    <div class="event-header">
+                        <span class="event-badge">ACTIVE</span>
+                    </div>
+                    <div class="event-body">
+                        <span class="divisi-tag"><?= $row['nama_divisi'] ?> - <?= $row['jabatan'] ?></span>
+                        <h3 style="font-size: 18px; margin-bottom: 5px;"><?= $row['nama_event'] ?></h3>
+                        <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
+                            <?= substr($row['deskripsi'], 0, 80) ?>...
+                        </p>
+                        <a href="detail_event.php?id=<?= $row['event_id'] ?>" class="btn-login" style="margin-top: auto; text-align: center; text-decoration: none;">
+                            Masuk Event &rarr;
+                        </a>
+                    </div>
                 </div>
-                <div class="stat-card card-blue">
-                    <i class="ph-bold ph-check-circle stat-icon"></i>
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">Tugas Selesai</div>
-                </div>
+                <?php 
+                    } 
+                } else {
+                    echo "<p style='color: #94a3b8; font-style: italic;'>Kamu belum tergabung dalam event aktif apapun.</p>";
+                }
+                ?>
             </div>
 
-            <div class="content-card">
-                <h3 style="margin-bottom: 20px;">Jobdesk Saya 📝</h3>
-                
-                <div class="task-item">
-                    <div>
-                        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 2px;">INSPACE 2025 / Acara</div>
-                        <h4 style="margin: 0; font-size: 14px; color: #334155;">Konsep Rundown Acara</h4>
-                        <div style="margin-top: 5px;">
-                            <span class="status-badge status-process">Sedang Dikerjakan</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 12px; color: #ef4444; font-weight: 600; margin-bottom: 5px;">20 Jan 2025</div>
-                        <button class="btn-detail" onclick="openModal('Konsep Rundown Acara', 'Membuat susunan acara lengkap dari pembukaan sampai penutupan.', 'Process')">Detail</button>
-                    </div>
-                </div>
+            <h3 style="margin: 40px 0 20px;">Arsip Event Selesai 📂</h3>
+            <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th width="40%" style="padding: 15px 20px;">NAMA EVENT</th>
+                            <th width="20%">PERAN SAYA</th>
+                            <th width="20%">TANGGAL</th>
+                            <th width="20%">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $qArsip = mysqli_query($conn, "
+                            SELECT e.*, d.nama_divisi, ad.jabatan 
+                            FROM events e
+                            JOIN divisi d ON e.event_id = d.event_id
+                            JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id
+                            WHERE ad.user_id = '$id_user' AND e.status IN ('completed', 'cancelled')
+                            ORDER BY e.tanggal_mulai DESC
+                        ");
 
-                <div class="task-item">
-                    <div>
-                        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 2px;">INSPACE 2025 / Humas</div>
-                        <h4 style="margin: 0; font-size: 14px; color: #334155;">Hubungi Pemateri Seminar</h4>
-                        <div style="margin-top: 5px;">
-                            <span class="status-badge status-pending">Pending</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 12px; color: #ef4444; font-weight: 600; margin-bottom: 5px;">25 Jan 2025</div>
-                        <button class="btn-detail" onclick="openModal('Hubungi Pemateri Seminar', 'Menghubungi Pak Sandiaga Uno untuk konfirmasi kehadiran.', 'Pending')">Detail</button>
-                    </div>
-                </div>
-
+                        if (mysqli_num_rows($qArsip) > 0) {
+                            while ($hist = mysqli_fetch_assoc($qArsip)) {
+                        ?>
+                        <tr>
+                            <td style="padding: 15px 20px; font-weight: 600;"><?= $hist['nama_event'] ?></td>
+                            <td><?= $hist['nama_divisi'] ?> (<?= $hist['jabatan'] ?>)</td>
+                            <td><?= date('d M Y', strtotime($hist['tanggal_mulai'])) ?></td>
+                            <td>
+                                <a href="detail_event.php?id=<?= $hist['event_id'] ?>" style="color: #6366f1; text-decoration: none; font-weight: 600;">Lihat Arsip</a>
+                            </td>
+                        </tr>
+                        <?php 
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' style='text-align: center; padding: 20px; color: #94a3b8;'>Belum ada arsip event.</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
+
         </main>
     </div>
-
-    <div id="modalDetail" class="modal-overlay" style="display: none;">
-        <div class="modal-box" style="max-width: 500px;">
-            <div class="modal-header">
-                <div class="modal-title">Detail Tugas</div>
-                <button onclick="closeModal()" class="btn-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <h3 id="taskTitle" style="color: #6366f1; margin-bottom: 10px;">Judul Tugas</h3>
-                
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <p id="taskDesc" style="color: #475569; font-size: 14px; line-height: 1.6;">Deskripsi tugas...</p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Update Status</label>
-                    <select class="form-control" id="taskStatus">
-                        <option value="Pending">Pending (Belum Mulai)</option>
-                        <option value="Process">On Progress (Sedang Dikerjakan)</option>
-                        <option value="Done">Selesai</option>
-                    </select>
-                </div>
-
-                <button class="btn-login" onclick="closeModal()" style="margin-top: 10px;">Simpan Perubahan</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function openModal(title, desc, status) {
-            document.getElementById('modalDetail').style.display = 'flex';
-            document.getElementById('taskTitle').innerText = title;
-            document.getElementById('taskDesc').innerText = desc;
-            document.getElementById('taskStatus').value = status;
-        }
-
-        function closeModal() {
-            document.getElementById('modalDetail').style.display = 'none';
-        }
-    </script>
-
 </body>
 </html>

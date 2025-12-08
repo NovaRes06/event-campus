@@ -87,3 +87,18 @@ INSERT INTO jobdesk (divisi_id, user_id, nama_tugas, deadline, status) VALUES
 
 ALTER TABLE events ADD COLUMN jumlah_divisi INT DEFAULT 0;
 SHOW TABLES;
+
+-- Mengubah semua password user saat ini menjadi MD5
+UPDATE users SET password = MD5(password);
+
+-- 1. Tambah fitur wajib ganti password
+ALTER TABLE users ADD COLUMN perlu_ganti_pass BOOLEAN DEFAULT TRUE;
+
+-- 2. Update user yang sudah ada agar tidak perlu ganti pass (opsional)
+UPDATE users SET perlu_ganti_pass = FALSE;
+
+-- 3. Sesuaikan Enum Jobdesk (Menambah Revision)
+ALTER TABLE jobdesk MODIFY COLUMN status ENUM('Pending', 'Process', 'Revision', 'Done') DEFAULT 'Pending';
+
+-- 4. Sesuaikan Enum Event (Menambah Upcoming & Archived jika mau)
+ALTER TABLE events MODIFY COLUMN status ENUM('upcoming', 'active', 'completed', 'cancelled', 'archived') DEFAULT 'upcoming';
