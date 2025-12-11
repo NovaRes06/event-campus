@@ -57,6 +57,11 @@ $id_user = $_SESSION['user_id'];
                 <a href="anggota.php" class="menu-item active">
                     <i class="ph-bold ph-house"></i> Beranda
                 </a>
+                
+                <a href="arsip_event.php" class="menu-item">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+
                 <a href="profil_anggota.php" class="menu-item">
                     <i class="ph-bold ph-user"></i> Profil
                 </a>
@@ -112,50 +117,7 @@ $id_user = $_SESSION['user_id'];
                 ?>
             </div>
 
-            <h3 style="margin: 40px 0 20px;">Arsip Event Selesai 📂</h3>
-            <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-                <table style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th width="40%" style="padding: 15px 20px;">NAMA EVENT</th>
-                            <th width="20%">PERAN SAYA</th>
-                            <th width="20%">TANGGAL</th>
-                            <th width="20%">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $qArsip = mysqli_query($conn, "
-                            SELECT e.*, d.nama_divisi, ad.jabatan 
-                            FROM events e
-                            JOIN divisi d ON e.event_id = d.event_id
-                            JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id
-                            WHERE ad.user_id = '$id_user' AND e.status IN ('completed', 'cancelled')
-                            ORDER BY e.tanggal_mulai DESC
-                        ");
-
-                        if (mysqli_num_rows($qArsip) > 0) {
-                            while ($hist = mysqli_fetch_assoc($qArsip)) {
-                        ?>
-                        <tr>
-                            <td style="padding: 15px 20px; font-weight: 600;"><?= $hist['nama_event'] ?></td>
-                            <td><?= $hist['nama_divisi'] ?> (<?= $hist['jabatan'] ?>)</td>
-                            <td><?= date('d M Y', strtotime($hist['tanggal_mulai'])) ?></td>
-                            <td>
-                                <a href="detail_event.php?id=<?= $hist['event_id'] ?>" style="color: #6366f1; text-decoration: none; font-weight: 600;">Lihat Arsip</a>
-                            </td>
-                        </tr>
-                        <?php 
-                            }
-                        } else {
-                            echo "<tr><td colspan='4' style='text-align: center; padding: 20px; color: #94a3b8;'>Belum ada arsip event.</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-
-        </main>
+            </main>
     </div>
 </body>
 </html>

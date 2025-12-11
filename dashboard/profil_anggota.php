@@ -99,6 +99,10 @@ $user = mysqli_fetch_assoc($qUser);
                     <i class="ph-bold ph-house"></i> Beranda
                 </a>
                 
+                <a href="arsip_event.php" class="menu-item">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+
                 <a href="profil_anggota.php" class="menu-item active">
                     <i class="ph-bold ph-user"></i> Profil
                 </a>
