@@ -357,16 +357,18 @@ if (isset($_POST['update_jobdesk'])) {
                 <form method="POST">
                     <input type="hidden" name="simpan_notulensi" value="1">
                     <div class="form-group">
-                        <label class="form-label">Jenis Rapat</label>
-                        <select name="jenis" class="form-control" required>
-                            <?php if($view_all_divisions): ?>
-                                <option value="Rapat Umum">Rapat Umum (Semua Divisi)</option>
-                            <?php endif; ?>
-                            
-                            <?php if($my_divisi_name): ?>
-                                <option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option>
-                            <?php endif; ?>
-                        </select>
+                       <label class="form-label">Jenis Rapat</label>
+                    <select name="jenis" class="form-control" required>
+                        <option value="" disabled selected>Pilih Jenis Rapat</option>
+                        <option value="Rapat Divisi">Rapat Internal Divisi</option>
+                        <?php if(isset($view_all_divisions) && $view_all_divisions): ?>
+                            <option value="Rapat Umum">Rapat Koordinasi (Semua Divisi)</option>
+                        <?php endif; ?>
+    
+                        <?php if(isset($my_divisi_name) && $my_divisi_name): ?>
+                            <option value="Rapat Divisi Internal">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option>
+                        <?php endif; ?>
+                    </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Judul Rapat</label>
