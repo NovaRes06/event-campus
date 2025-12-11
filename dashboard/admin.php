@@ -96,18 +96,6 @@ $totalDone = $dataDone['total'];
                     <div class="stat-number"><?= $totalAnggota; ?></div>
                     <div class="stat-label">Total Anggota</div>
                 </div>
-
-                <div class="stat-card card-pink">
-                    <i class="ph-bold ph-clock-countdown stat-icon"></i>
-                    <div class="stat-number"><?= $totalPending; ?></div>
-                    <div class="stat-label">Jobdesk Pending</div>
-                </div>
-
-                <div class="stat-card card-orange">
-                    <i class="ph-bold ph-check-fat stat-icon"></i>
-                    <div class="stat-number"><?= $totalDone; ?></div>
-                    <div class="stat-label">Tugas Selesai</div>
-                </div>
             </div>
 
             <div class="content-card">
