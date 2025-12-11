@@ -165,6 +165,9 @@ INSERT INTO `users` (`user_id`, `email`, `password`, `nama_lengkap`, `peran`, `c
 	(23, 'koor_dokum@kampus.id', '39f55dd65ead9c938fa93a765983bff0', 'Luna Maya', 'anggota', '2025-12-08 12:17:10', 0),
 	(24, 'staff_dokum1@kampus.id', '39f55dd65ead9c938fa93a765983bff0', 'Maudy Ayunda', 'anggota', '2025-12-08 12:17:10', 0);
 
+
+ALTER TABLE jobdesk ADD COLUMN keterangan TEXT DEFAULT NULL AFTER status;
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
