@@ -7,17 +7,20 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] != 'admin' && $_SESSION['rol
     header("Location: ../index.php"); exit;
 }
 
+// Menangkap Event ID yang dipilih untuk filtering divisi
+$selected_evt = isset($_GET['evt_id']) ? $_GET['evt_id'] : '';
+
 // --- LOGIC: SIMPAN NOTULENSI ---
 if (isset($_POST['simpan_notulen'])) {
     $event_id = $_POST['event_id'];
-    $divisi_id = $_POST['divisi_id'];
-    $judul = $_POST['judul_notulen'];
-    $isi = $_POST['isi_pembahasan'];
+    $divisi_id = !empty($_POST['divisi_id']) ? "'".$_POST['divisi_id']."'" : "NULL"; // Handle NULL if Rapat Umum
+    $judul = mysqli_real_escape_string($conn, $_POST['judul_notulen']);
+    $isi = mysqli_real_escape_string($conn, $_POST['isi_pembahasan']);
     $tgl_rapat = $_POST['tanggal_rapat'] . ' ' . $_POST['jam_rapat'] . ':00';
     $jenis = $_POST['jenis_rapat'];
 
     $query = "INSERT INTO notulensi (event_id, divisi_id, judul_notulen, isi_pembahasan, tanggal_rapat, jenis_rapat) 
-              VALUES ('$event_id', '$divisi_id', '$judul', '$isi', '$tgl_rapat', '$jenis')";
+              VALUES ('$event_id', $divisi_id, '$judul', '$isi', '$tgl_rapat', '$jenis')";
     
     if (mysqli_query($conn, $query)) {
         echo "<script>alert('Notulensi Rapat berhasil disimpan!'); window.location='data_laporan.php';</script>";
@@ -31,11 +34,10 @@ if (isset($_POST['simpan_notulen'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Buat Notulensi</title>
+    <title>Buat Notulensi Global</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=111">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* Sidebar Fix */
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
     </style>
@@ -55,35 +57,46 @@ if (isset($_POST['simpan_notulen'])) {
         </aside>
 
         <main class="main-content">
-            <h1 style="margin-bottom: 20px;">Catat Hasil Rapat 📝</h1>
+            <h1 style="margin-bottom: 20px;">Catat Hasil Rapat (Admin) 📝</h1>
             
             <div class="login-card" style="margin: 0 auto; text-align: left; width: 95%; max-width: 1100px;">
                 <form method="POST">
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        
                         <div class="form-group">
                             <label class="form-label">Event Terkait</label>
-                            <select name="event_id" class="form-control" required>
-                                <option value="">Pilih Event...</option>
+                            <select name="event_id" class="form-control" required onchange="window.location.href='tambah_notulensi.php?evt_id='+this.value">
+                                <option value="">-- Pilih Event Dahulu --</option>
                                 <?php
                                 $events = mysqli_query($conn, "SELECT event_id, nama_event FROM events WHERE status IN ('active', 'pending') ORDER BY nama_event");
                                 while($evt = mysqli_fetch_assoc($events)):
+                                    $selected = ($selected_evt == $evt['event_id']) ? 'selected' : '';
                                 ?>
-                                <option value="<?= $evt['event_id'] ?>"><?= $evt['nama_event'] ?></option>
+                                <option value="<?= $evt['event_id'] ?>" <?= $selected ?>><?= $evt['nama_event'] ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label class="form-label">Divisi Penyelenggara (Opsional)</label>
-                            <select name="divisi_id" class="form-control">
-                                <option value="">Rapat Umum / Semua Divisi</option>
+                            <label class="form-label">Divisi Penyelenggara</label>
+                            <select name="divisi_id" class="form-control" <?= empty($selected_evt) ? 'disabled' : '' ?>>
+                                <option value="">-- Rapat Umum / Semua Divisi --</option>
                                 <?php
-                                $divs = mysqli_query($conn, "SELECT divisi_id, nama_divisi FROM divisi ORDER BY nama_divisi");
-                                while($div = mysqli_fetch_assoc($divs)):
+                                if (!empty($selected_evt)) {
+                                    // Query Divisi HANYA untuk event yang dipilih
+                                    $divs = mysqli_query($conn, "SELECT divisi_id, nama_divisi FROM divisi WHERE event_id='$selected_evt' ORDER BY nama_divisi");
+                                    while($div = mysqli_fetch_assoc($divs)):
                                 ?>
                                 <option value="<?= $div['divisi_id'] ?>"><?= $div['nama_divisi'] ?></option>
-                                <?php endwhile; ?>
+                                <?php 
+                                    endwhile; 
+                                }
+                                ?>
                             </select>
+                            <?php if(empty($selected_evt)): ?>
+                                <small style="color: #ef4444;">*Pilih event dulu untuk memunculkan divisi.</small>
+                            <?php endif; ?>
                         </div>
                     </div>
 
