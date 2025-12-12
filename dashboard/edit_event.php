@@ -57,29 +57,25 @@ if (isset($_GET['hapus_divisi'])) {
     echo "<script>window.location='edit_event.php?id=$id_event';</script>";
 }
 
-// D. Plotting Anggota (DENGAN LOGIC PAKSAAN BPH)
+// D. Plotting Anggota
 if (isset($_POST['tambah_anggota'])) {
     $user_id   = $_POST['user_id'];
-    $divisi_id = $_POST['divisi_id']; // Ini pilihan dari form (bisa jadi salah)
+    $divisi_id = $_POST['divisi_id']; 
     $jabatan   = $_POST['jabatan'];
 
-    // --- LOGIC BARU: Validasi BPH ---
-    // Jika Jabatan adalah Ketua atau Wakil Ketua, WAJIB masuk divisi BPH
+    // Validasi BPH
     if ($jabatan == 'Ketua' || $jabatan == 'Wakil Ketua') {
-        // Cari ID divisi BPH di event ini
         $qBPH = mysqli_query($conn, "SELECT divisi_id FROM divisi WHERE event_id='$id_event' AND nama_divisi='BPH'");
         $rowBPH = mysqli_fetch_assoc($qBPH);
         
         if ($rowBPH) {
-            $divisi_id = $rowBPH['divisi_id']; // Timpa pilihan user, paksa ke ID BPH
+            $divisi_id = $rowBPH['divisi_id']; 
         } else {
-            // Jaga-jaga kalau divisi BPH terhapus, buat baru
             mysqli_query($conn, "INSERT INTO divisi (event_id, nama_divisi) VALUES ('$id_event', 'BPH')");
             $divisi_id = mysqli_insert_id($conn);
         }
     }
 
-    // Cek duplikasi
     $cek = mysqli_query($conn, "SELECT * FROM anggota_divisi WHERE user_id='$user_id' AND divisi_id='$divisi_id'");
     if(mysqli_num_rows($cek) == 0){
         mysqli_query($conn, "INSERT INTO anggota_divisi (user_id, divisi_id, jabatan) VALUES ('$user_id', '$divisi_id', '$jabatan')");
@@ -112,12 +108,10 @@ $data = mysqli_fetch_assoc($query_event);
         .grid-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; align-items: start; }
         @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
         .mini-table { width: 100%; border-collapse: collapse; }
-        .mini-table th { background: #f8fafc; padding: 10px; font-size: 12px; text-align: left; }
-        .mini-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .mini-table th { background: #f8fafc; padding: 10px; font-size: 12px; text-align: left; color: #64748b; font-weight: 700; }
+        .mini-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
-        
-        /* Highlight BPH di Dropdown */
         option.opt-bph { font-weight: bold; color: #d97706; background: #fffbeb; }
     </style>
 </head>
@@ -184,7 +178,6 @@ $data = mysqli_fetch_assoc($query_event);
                             <tbody>
                                 <?php
                                 $q_div = mysqli_query($conn, "SELECT * FROM divisi WHERE event_id='$id_event'");
-                                // Simpan ID BPH untuk dipakai di JavaScript nanti
                                 $id_bph_js = ""; 
                                 
                                 if(mysqli_num_rows($q_div) == 0) echo "<tr><td colspan='2'>Belum ada divisi.</td></tr>";
@@ -216,10 +209,13 @@ $data = mysqli_fetch_assoc($query_event);
                                     <label class="form-label">Pilih Anggota</label>
                                     <select name="user_id" class="form-control" required>
                                         <?php
+                                        // Menampilkan Nama (Email) di dropdown
                                         $users = mysqli_query($conn, "SELECT * FROM users WHERE peran != 'admin' ORDER BY nama_lengkap ASC");
                                         while($u = mysqli_fetch_assoc($users)):
                                         ?>
-                                        <option value="<?= $u['user_id'] ?>"><?= $u['nama_lengkap'] ?></option>
+                                        <option value="<?= $u['user_id'] ?>">
+                                            <?= htmlspecialchars($u['nama_lengkap']) ?> 
+                                        </option>
                                         <?php endwhile; ?>
                                     </select>
                                 </div>
@@ -253,23 +249,31 @@ $data = mysqli_fetch_assoc($query_event);
                         </form>
 
                         <table class="mini-table">
-                            <thead><tr><th>Nama</th><th>Divisi</th><th>Jabatan</th><th>Aksi</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Email</th> <th>Divisi</th>
+                                    <th>Jabatan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php
+                                // Tambahkan u.email pada query SELECT
                                 $q_plot = mysqli_query($conn, "
-                                    SELECT ad.anggota_id, u.nama_lengkap, d.nama_divisi, ad.jabatan 
+                                    SELECT ad.anggota_id, u.nama_lengkap, u.email, d.nama_divisi, ad.jabatan 
                                     FROM anggota_divisi ad
                                     JOIN users u ON ad.user_id = u.user_id
                                     JOIN divisi d ON ad.divisi_id = d.divisi_id
                                     WHERE d.event_id = '$id_event'
                                     ORDER BY FIELD(ad.jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Koordinator', 'Staff'), d.nama_divisi ASC
                                 ");
-                                if(mysqli_num_rows($q_plot) == 0) echo "<tr><td colspan='4'>Belum ada anggota diplot.</td></tr>";
+                                if(mysqli_num_rows($q_plot) == 0) echo "<tr><td colspan='5'>Belum ada anggota diplot.</td></tr>";
                                 while($plot = mysqli_fetch_assoc($q_plot)):
                                 ?>
                                 <tr>
-                                    <td><?= $plot['nama_lengkap'] ?></td>
-                                    <td><span class="badge-purple"><?= $plot['nama_divisi'] ?></span></td>
+                                    <td><strong><?= htmlspecialchars($plot['nama_lengkap']) ?></strong></td>
+                                    <td style="color: #64748b; font-size: 12px;"><?= htmlspecialchars($plot['email']) ?></td> <td><span class="badge-purple"><?= $plot['nama_divisi'] ?></span></td>
                                     <td><?= $plot['jabatan'] ?></td>
                                     <td>
                                         <a href="edit_event.php?id=<?= $id_event ?>&hapus_anggota=<?= $plot['anggota_id'] ?>" onclick="return confirm('Keluarkan anggota ini?')" style="color: #ef4444;"><i class="ph-bold ph-trash"></i></a>
@@ -289,20 +293,12 @@ $data = mysqli_fetch_assoc($query_event);
         function autoSelectBPH() {
             const jabatan = document.getElementById('selectJabatan').value;
             const selectDivisi = document.getElementById('selectDivisi');
-            const idBPH = "<?= $id_bph_js ?>"; // Mengambil ID BPH dari PHP
+            const idBPH = "<?= $id_bph_js ?>"; 
 
-            // Jika user pilih Ketua/Wakil, otomatis pindah dropdown Divisi ke BPH
             if (jabatan === 'Ketua' || jabatan === 'Wakil Ketua') {
                 if (idBPH) {
                     selectDivisi.value = idBPH;
-                    // Opsional: Disable agar user tidak bisa ganti
-                    // selectDivisi.style.pointerEvents = 'none'; 
-                    // selectDivisi.style.opacity = '0.7';
                 }
-            } else {
-                // Kembalikan normal
-                // selectDivisi.style.pointerEvents = 'auto';
-                // selectDivisi.style.opacity = '1';
             }
         }
     </script>
