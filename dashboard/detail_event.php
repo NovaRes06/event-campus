@@ -107,7 +107,7 @@ if (isset($_POST['update_jobdesk'])) {
     }
 
     if ($allow_update) {
-        $queryUpdate = "UPDATE jobdesk SET status='$stat', user_id=$pic WHERE jobdesk_id='$jid'";
+        $queryUpdate = "UPDATE jobdesk SET status='$stat', user_id=$pic, keterangan='$ket' WHERE jobdesk_id='$jid'";
         mysqli_query($conn, $queryUpdate);
         echo "<script>window.location='detail_event.php?id=$id_event&msg=job_status_updated';</script>";
     }
@@ -278,7 +278,7 @@ if (isset($_GET['hapus_notulensi'])) {
                                 $can_manage = ($view_all_divisions || ($is_koordinator && $row['divisi_id'] == $my_divisi)); // Edit nama/hapus
                                 $can_update_status = ($can_manage || $is_mine); // Update status/progress
 
-                                $current_keterangan = htmlspecialchars($row['keterangan'] ?? '');
+                                $current_keterangan = isset($row['keterangan']) ? $row['keterangan'] : '';
                                 $current_status = $row['status'];
                                 $current_pic = $row['user_id'];
                             ?>
@@ -295,7 +295,7 @@ if (isset($_GET['hapus_notulensi'])) {
                                         <form method="POST" style="margin:0;">
                                             <input type="hidden" name="job_id" value="<?= $row['jobdesk_id'] ?>">
                                             <input type="hidden" name="status" value="<?= $current_status ?>">
-                                            <input type="hidden" name="keterangan" value="<?= $current_keterangan ?>"> 
+                                            <input type="hidden" name="keterangan" class="input-xs" value="<?= htmlspecialchars($current_keterangan) ?>"> 
                                             <input type="hidden" name="update_jobdesk" value="1">
 
                                             <select name="pic_id" class="select-xs" onchange="this.form.submit()">
@@ -321,7 +321,7 @@ if (isset($_GET['hapus_notulensi'])) {
                                         <form method="POST" style="margin:0;">
                                             <input type="hidden" name="job_id" value="<?= $row['jobdesk_id'] ?>">
                                             <input type="hidden" name="pic_id" value="<?= $current_pic ?>">
-                                            <input type="hidden" name="keterangan" value="<?= $current_keterangan ?>"> 
+                                            <input type="hidden" name="keterangan" value="<?= htmlspecialchars($current_keterangan) ?>"> 
                                             <input type="hidden" name="update_jobdesk" value="1">
                                             
                                             <select name="status" class="select-xs status-<?= $row['status'] ?>" onchange="this.form.submit()">
@@ -345,13 +345,14 @@ if (isset($_GET['hapus_notulensi'])) {
                                             <input type="hidden" name="update_jobdesk" value="1">
                                             
                                             <input type="text" name="keterangan" class="input-xs" 
-                                                   value="<?= $current_keterangan ?>" 
+                                                   value="<?= htmlspecialchars($current_keterangan) ?>" 
                                                    placeholder="Tulis ket..." 
-                                                   onchange="this.form.submit()">
+                                                   onchange="this.form.submit()"
+                                                   title="Tekan Enter untuk menyimpan">
                                         </form>
                                     <?php else: ?>
                                         <span style="font-size: 12px; color: #64748b; font-style: italic;">
-                                            <?= $current_keterangan ?: '-' ?>
+                                            <?= htmlspecialchars($current_keterangan) ?: '-' ?>
                                         </span>
                                     <?php endif; ?>
                                 </td>

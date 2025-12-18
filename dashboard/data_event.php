@@ -51,7 +51,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
         <main class="main-content">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                 <h1>Daftar Event 📅</h1>
-                <a href="tambah_event.php" class="btn-login" style="width: auto; padding: 10px 20px; font-size: 14px; text-decoration: none; display: inline-block;">+ Event Baru</a>
+                <a href="tambah_event.php" class="btn-login" style="width: auto; padding: 15px 20px; font-size: 14px; text-decoration: none; display: inline-block;">+ Event Baru</a>
             </div>
 
             <div class="table-container" style="background: white; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
