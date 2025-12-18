@@ -57,13 +57,13 @@ if (isset($_GET['hapus_divisi'])) {
     echo "<script>window.location='edit_event.php?id=$id_event';</script>";
 }
 
-// D. Plotting Anggota
+// D. Plotting Anggota (DENGAN VALIDASI DOUBLE JOB)
 if (isset($_POST['tambah_anggota'])) {
     $user_id   = $_POST['user_id'];
     $divisi_id = $_POST['divisi_id']; 
     $jabatan   = $_POST['jabatan'];
 
-    // Validasi BPH
+    // 1. LOGIC BPH: Jika Ketua/Wakil, Paksa Masuk Divisi BPH
     if ($jabatan == 'Ketua' || $jabatan == 'Wakil Ketua') {
         $qBPH = mysqli_query($conn, "SELECT divisi_id FROM divisi WHERE event_id='$id_event' AND nama_divisi='BPH'");
         $rowBPH = mysqli_fetch_assoc($qBPH);
@@ -76,11 +76,28 @@ if (isset($_POST['tambah_anggota'])) {
         }
     }
 
-    $cek = mysqli_query($conn, "SELECT * FROM anggota_divisi WHERE user_id='$user_id' AND divisi_id='$divisi_id'");
-    if(mysqli_num_rows($cek) == 0){
-        mysqli_query($conn, "INSERT INTO anggota_divisi (user_id, divisi_id, jabatan) VALUES ('$user_id', '$divisi_id', '$jabatan')");
+    // 2. CEK APAKAH USER SUDAH TERDAFTAR DI EVENT INI (DIVISI MANAPUN)
+    // Kita join ke tabel divisi untuk memastikan pengecekan hanya di event ID yang sedang diedit
+    $cekDouble = mysqli_query($conn, "
+        SELECT d.nama_divisi, ad.jabatan 
+        FROM anggota_divisi ad
+        JOIN divisi d ON ad.divisi_id = d.divisi_id
+        WHERE ad.user_id = '$user_id' 
+        AND d.event_id = '$id_event'
+    ");
+
+    if (mysqli_num_rows($cekDouble) > 0) {
+        // Jika sudah ada, TAMPILKAN ERROR & JANGAN SIMPAN
+        $existing = mysqli_fetch_assoc($cekDouble);
+        $div_lama = $existing['nama_divisi'];
+        $jab_lama = $existing['jabatan'];
+        
+        echo "<script>
+            alert('GAGAL: User ini sudah terdaftar sebagai $jab_lama di Divisi $div_lama. Satu orang hanya boleh memegang satu jabatan per event.');
+        </script>";
     } else {
-        echo "<script>alert('User tersebut sudah ada di divisi ini!');</script>";
+        // 3. Jika Belum Ada, Baru Simpan
+        mysqli_query($conn, "INSERT INTO anggota_divisi (user_id, divisi_id, jabatan) VALUES ('$user_id', '$divisi_id', '$jabatan')");
     }
 }
 
