@@ -107,7 +107,7 @@ if (isset($_POST['update_jobdesk'])) {
     }
 
     if ($allow_update) {
-        $queryUpdate = "UPDATE jobdesk SET status='$stat', user_id=$pic, keterangan='$ket' WHERE jobdesk_id='$jid'";
+        $queryUpdate = "UPDATE jobdesk SET status='$stat', user_id=$pic WHERE jobdesk_id='$jid'";
         mysqli_query($conn, $queryUpdate);
         echo "<script>window.location='detail_event.php?id=$id_event&msg=job_status_updated';</script>";
     }
