@@ -106,15 +106,7 @@ if (isset($_POST['login'])) {
                     <i class="ph ph-eye-slash toggle-password" id="togglePassword"></i>
                 </div>
             </div>
-
-            <div class="form-footer">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Ingat Saya</label>
-                </div>
-                <a href="#" class="forgot-link">Lupa Password?</a>
-            </div>
-
+            
             <button type="submit" name="login" class="btn-login">
                 MASUK SEKARANG
             </button>
