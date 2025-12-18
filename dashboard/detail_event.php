@@ -201,7 +201,7 @@ if (isset($_GET['hapus_notulensi'])) {
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2 class="brand-title">E-PANITIA</h2>
-                <span class="role-badge"><?= $my_role_global == 'admin' ? 'SYSTEM ADMIN' : 'ANGGOTA' ?></span>
+                <span class="role-badge"><?= $my_role_global == 'admin' ? 'SYSTEM ADMIN' : ($my_jabatan == 'Ketua' ? 'KETUA' : ($my_jabatan == 'Sekretaris' ? 'SEKRETARIS' : ($my_jabatan == 'Bendahara' ? 'BENDAHARA' : 'ANGGOTA'))) ?></span>
             </div>
             
             <a href="<?= $my_role_global == 'admin' ? 'admin.php' : 'anggota.php' ?>" class="btn-kelola" style="margin-bottom: 20px; background: #94a3b8;">
@@ -218,11 +218,11 @@ if (isset($_GET['hapus_notulensi'])) {
                 <small style="text-transform: uppercase; font-weight: 700; color: #64748b;">Event Saat Ini</small>
                 <h3 style="font-size: 16px; margin: 5px 0; color: #1e293b;"><?= htmlspecialchars($info['nama_event']) ?></h3>
                 <?php if($is_super_admin): ?>
-                    <div class="divisi-tag" style="background:#fcd34d; color:#92400e; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Mode Pantau (Admin)</div>
+                    <div class="divisi-tag" style="background:#fcd34d; color:#92400e; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Mode Admin</div>
                 <?php elseif($is_ketua_event): ?>
-                    <div class="divisi-tag" style="background:#c084fc; color:#fff; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Ketua Pelaksana</div>
+                    <div class="divisi-tag" style="background:#c084fc; color:#fff; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Ketua Pelaksana</div>
                 <?php else: ?>
-                    <div class="divisi-tag" style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
+                    <div class="divisi-tag" style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
                 <?php endif; ?>
             </div>
         </aside>
