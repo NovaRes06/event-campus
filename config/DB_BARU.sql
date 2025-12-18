@@ -167,6 +167,7 @@ INSERT INTO `users` (`user_id`, `email`, `password`, `nama_lengkap`, `peran`, `c
 
 
 ALTER TABLE jobdesk ADD COLUMN keterangan TEXT DEFAULT NULL AFTER status;
+ALTER TABLE jobdesk ADD COLUMN request_dari_divisi_id INT DEFAULT NULL;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

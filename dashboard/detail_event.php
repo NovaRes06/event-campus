@@ -38,35 +38,40 @@ $is_koordinator = ($my_jabatan == 'Koordinator');
 $is_sekretaris  = ($my_jabatan == 'Sekretaris');
 
 if (!$is_super_admin && $my_jabatan == null) {
-    echo "<script>alert('Akses ditolak! Kamu bukan panitia event ini.'); window.location='anggota.php';</script>";
+    echo "<script>alert('Akses ditolak!'); window.location='anggota.php';</script>";
     exit;
 }
 
 $view_all_divisions = ($is_super_admin || $is_ketua_event);
 
 
-// --- LOGIC CRUD JOBDESK (BARU & UPDATE) ---
+// --- LOGIC CRUD JOBDESK ---
 
-// 1. TAMBAH JOBDESK (BARU)
+// 1. TAMBAH JOBDESK (FITUR REQUEST - UPDATED)
 if (isset($_POST['tambah_jobdesk'])) {
-    $divisi_id = $_POST['divisi_id'];
+    $target_divisi = $_POST['target_divisi']; 
     $nama_tugas = mysqli_real_escape_string($conn, $_POST['nama_tugas']);
     $deadline = $_POST['deadline'];
+    // Keterangan opsional saat buat tugas
+    $keterangan = isset($_POST['keterangan']) ? mysqli_real_escape_string($conn, $_POST['keterangan']) : '';
     
-    // Validasi: Ketua/Admin boleh semua, Koor hanya divisinya
-    $allow = false;
-    if ($view_all_divisions) $allow = true;
-    elseif ($is_koordinator && $divisi_id == $my_divisi) $allow = true;
+    // Logic Request: Jika saya bukan Admin/Ketua, DAN target bukan divisi saya -> Request
+    $req_dari = "NULL";
+    if (!$view_all_divisions && $target_divisi != $my_divisi) {
+        $req_dari = "'$my_divisi'";
+    }
 
-    if ($allow) {
-        mysqli_query($conn, "INSERT INTO jobdesk (divisi_id, nama_tugas, deadline, status) VALUES ('$divisi_id', '$nama_tugas', '$deadline', 'Pending')");
+    $qInsert = "INSERT INTO jobdesk (divisi_id, nama_tugas, deadline, status, keterangan, request_dari_divisi_id) 
+                VALUES ('$target_divisi', '$nama_tugas', '$deadline', 'Pending', '$keterangan', $req_dari)";
+    
+    if(mysqli_query($conn, $qInsert)) {
         echo "<script>window.location='detail_event.php?id=$id_event&msg=job_added';</script>";
     } else {
-        echo "<script>alert('Anda tidak berhak menambah tugas di divisi ini.');</script>";
+        echo "<script>alert('Gagal: ".mysqli_error($conn)."');</script>";
     }
 }
 
-// 2. EDIT JOBDESK UTAMA (Nama & Deadline) (BARU)
+// 2. EDIT JOBDESK UTAMA (Nama & Deadline)
 if (isset($_POST['edit_jobdesk_full'])) {
     $jid = $_POST['job_id'];
     $nama_tugas = mysqli_real_escape_string($conn, $_POST['nama_tugas']);
@@ -76,33 +81,31 @@ if (isset($_POST['edit_jobdesk_full'])) {
     echo "<script>window.location='detail_event.php?id=$id_event&msg=job_edited';</script>";
 }
 
-// 3. HAPUS JOBDESK (BARU)
+// 3. HAPUS JOBDESK
 if (isset($_GET['hapus_jobdesk'])) {
     $jid = $_GET['hapus_jobdesk'];
     mysqli_query($conn, "DELETE FROM jobdesk WHERE jobdesk_id='$jid'");
     echo "<script>window.location='detail_event.php?id=$id_event&msg=job_deleted';</script>";
 }
 
-// 4. UPDATE STATUS/PIC (LAMA - Tetap dipertahankan)
+// 4. UPDATE STATUS/PIC (LENGKAP dengan KETERANGAN)
 if (isset($_POST['update_jobdesk'])) {
     $jid = $_POST['job_id'];
     $stat = $_POST['status'];
     $pic = !empty($_POST['pic_id']) ? $_POST['pic_id'] : "NULL"; 
     $ket = isset($_POST['keterangan']) ? mysqli_real_escape_string($conn, $_POST['keterangan']) : '';
 
+    // Logic Hak Edit: Pengirim (Requestor) & Penerima (Owner) & PIC bisa edit
     $allow_update = false;
     if ($view_all_divisions) {
-        $allow_update = true; 
-    } elseif ($is_koordinator) {
-        $cekDiv = mysqli_query($conn, "SELECT divisi_id FROM jobdesk WHERE jobdesk_id='$jid'");
-        $d = mysqli_fetch_assoc($cekDiv);
-        if ($d['divisi_id'] == $my_divisi) $allow_update = true;
+        $allow_update = true;
     } else {
-        $cekOwner = mysqli_query($conn, "SELECT user_id FROM jobdesk WHERE jobdesk_id='$jid'");
-        $o = mysqli_fetch_assoc($cekOwner);
-        if ($o['user_id'] == $id_user) {
+        $cekJob = mysqli_query($conn, "SELECT divisi_id, user_id, request_dari_divisi_id FROM jobdesk WHERE jobdesk_id='$jid'");
+        $jobData = mysqli_fetch_assoc($cekJob);
+        
+        // Cek kepemilikan atau request
+        if ($jobData['divisi_id'] == $my_divisi || $jobData['request_dari_divisi_id'] == $my_divisi || $jobData['user_id'] == $id_user) {
             $allow_update = true;
-            $pic = $id_user; 
         }
     }
 
@@ -114,19 +117,21 @@ if (isset($_POST['update_jobdesk'])) {
 }
 
 
-// --- LOGIC NOTULENSI ---
+// --- LOGIC CRUD NOTULENSI (LENGKAP) ---
+
+// 1. Simpan Notulensi
 if (isset($_POST['simpan_notulensi'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $isi = mysqli_real_escape_string($conn, $_POST['isi']);
     $tgl = $_POST['tanggal'];
     $jenis = $_POST['jenis']; 
-    $div_target = "NULL";
-    if ($jenis == 'Rapat Divisi' && !$view_all_divisions) $div_target = "'$my_divisi'";
+    $div_target = ($jenis == 'Rapat Divisi' && !$view_all_divisions) ? "'$my_divisi'" : "NULL";
     
     mysqli_query($conn, "INSERT INTO notulensi (event_id, divisi_id, judul_notulen, isi_pembahasan, tanggal_rapat, jenis_rapat) VALUES ('$id_event', $div_target, '$judul', '$isi', '$tgl', '$jenis')");
     echo "<script>window.location='detail_event.php?id=$id_event&tab=notulensi&msg=notulensi_saved';</script>";
 }
-// Update Notulensi
+
+// 2. Update Notulensi (YANG HILANG TADI SAYA KEMBALIKAN DISINI)
 if (isset($_POST['update_notulensi'])) {
     $id_not = $_POST['notulensi_id'];
     $judul = mysqli_real_escape_string($conn, $_POST['judul_notulen']);
@@ -137,7 +142,8 @@ if (isset($_POST['update_notulensi'])) {
     mysqli_query($conn, "UPDATE notulensi SET judul_notulen='$judul', isi_pembahasan='$isi', tanggal_rapat='$tgl_rapat', jenis_rapat='$jenis' WHERE notulensi_id='$id_not'");
     echo "<script>window.location='detail_event.php?id=$id_event&tab=notulensi&msg=notulensi_updated';</script>";
 }
-// Hapus Notulensi
+
+// 3. Hapus Notulensi
 if (isset($_GET['hapus_notulensi'])) {
     $id_not = $_GET['hapus_notulensi'];
     mysqli_query($conn, "DELETE FROM notulensi WHERE notulensi_id='$id_not'");
@@ -150,7 +156,7 @@ if (isset($_GET['hapus_notulensi'])) {
 <head>
     <meta charset="UTF-8">
     <title>Dashboard <?= htmlspecialchars($info['nama_event']) ?></title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=116">
+    <link rel="stylesheet" href="../assets/css/style.css?v=119">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .role-badge { background: #dbeafe; color: #1e40af; }
@@ -164,11 +170,13 @@ if (isset($_GET['hapus_notulensi'])) {
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* TABLE & FORM STYLES */
         .select-xs { padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; background: white; max-width: 100%; width: 100%; cursor: pointer;}
         .input-xs { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 100%; transition: 0.2s; }
         .input-xs:focus { border-color: #6366f1; outline: none; background: #f8fafc; }
         
         .badge-divisi { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
+        .badge-req { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 4px; }
         
         .status-Pending { color: #d97706; font-weight: 700; }
         .status-Process { color: #2563eb; font-weight: 700; }
@@ -177,7 +185,7 @@ if (isset($_GET['hapus_notulensi'])) {
 
         .notulensi-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; transition: 0.2s; }
         .notulensi-card:hover { border-color: #6366f1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-
+        
         .action-icon { color: #94a3b8; cursor: pointer; text-decoration: none; margin-left: 8px; font-size: 14px; }
         .action-icon:hover { color: #6366f1; }
         .action-icon.trash:hover { color: #ef4444; }
@@ -209,7 +217,6 @@ if (isset($_GET['hapus_notulensi'])) {
             <div style="padding: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid white;">
                 <small style="text-transform: uppercase; font-weight: 700; color: #64748b;">Event Saat Ini</small>
                 <h3 style="font-size: 16px; margin: 5px 0; color: #1e293b;"><?= htmlspecialchars($info['nama_event']) ?></h3>
-                
                 <?php if($is_super_admin): ?>
                     <div class="divisi-tag" style="background:#fcd34d; color:#92400e; font-weight:700; padding:5px; border-radius:5px; font-size:11px;">Mode Pantau (Admin)</div>
                 <?php elseif($is_ketua_event): ?>
@@ -231,17 +238,15 @@ if (isset($_GET['hapus_notulensi'])) {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3>
                         <?php if($view_all_divisions): ?>
-                            Master Jobdesk (Semua Divisi) 🌐
+                            Master Jobdesk (Semua Divisi)
                         <?php else: ?>
-                            Tugas Divisi <?= $my_divisi_name ?> 📌
+                            Tugas Divisi <?= $my_divisi_name ?>
                         <?php endif; ?>
                     </h3>
                     
-                    <?php if($view_all_divisions || $is_koordinator): ?>
                     <button onclick="document.getElementById('modalTambahJob').style.display='flex'" class="btn-login" style="width: auto; padding: 10px 20px; font-size: 13px;">
-                        + Buat Tugas Baru
+                        + Buat Jobdesk
                     </button>
-                    <?php endif; ?>
                 </div>
 
                 <div class="table-container" style="background: white; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
@@ -253,18 +258,21 @@ if (isset($_GET['hapus_notulensi'])) {
                                 <th width="15%">DEADLINE</th>
                                 <th width="15%">STATUS</th>
                                 <th width="20%">KETERANGAN</th> 
-                                <th width="5%"></th> </tr>
+                                <th width="5%"></th> 
+                            </tr>
                         </thead>
                         <tbody>
                             <?php 
-                            $qJobSql = "SELECT j.*, u.nama_lengkap, d.nama_divisi 
+                            // Query: Ambil tugas Divisi Sendiri OR Request Masuk OR Request Keluar
+                            $qJobSql = "SELECT j.*, u.nama_lengkap, d.nama_divisi, req_div.nama_divisi AS nama_divisi_req
                                         FROM jobdesk j 
                                         LEFT JOIN users u ON j.user_id = u.user_id 
                                         JOIN divisi d ON j.divisi_id = d.divisi_id
+                                        LEFT JOIN divisi req_div ON j.request_dari_divisi_id = req_div.divisi_id
                                         WHERE d.event_id='$id_event'";
                             
                             if (!$view_all_divisions) {
-                                $qJobSql .= " AND j.divisi_id='$my_divisi'";
+                                $qJobSql .= " AND (j.divisi_id='$my_divisi' OR j.request_dari_divisi_id='$my_divisi')";
                             }
 
                             $qJobSql .= " ORDER BY j.deadline ASC";
@@ -274,19 +282,34 @@ if (isset($_GET['hapus_notulensi'])) {
 
                             while($row = mysqli_fetch_assoc($qJob)):
                                 $is_mine = ($row['user_id'] == $id_user);
-                                // Permission Logic
-                                $can_manage = ($view_all_divisions || ($is_koordinator && $row['divisi_id'] == $my_divisi)); // Edit nama/hapus
-                                $can_update_status = ($can_manage || $is_mine); // Update status/progress
+                                // Permission Logic: Bisa edit jika Requestor OR Receiver OR SuperUser
+                                $can_manage = ($view_all_divisions || ($row['divisi_id'] == $my_divisi || $row['request_dari_divisi_id'] == $my_divisi));
+                                $can_update_status = ($can_manage || $is_mine);
 
                                 $current_keterangan = isset($row['keterangan']) ? $row['keterangan'] : '';
                                 $current_status = $row['status'];
                                 $current_pic = $row['user_id'];
+                                
+                                // Deteksi Request
+                                $is_incoming_req = (!empty($row['request_dari_divisi_id']) && $row['divisi_id'] == $my_divisi);
+                                $is_outgoing_req = (!empty($row['request_dari_divisi_id']) && $row['request_dari_divisi_id'] == $my_divisi);
                             ?>
                             <tr style="<?= $is_mine ? 'background:#f0f9ff;' : '' ?>">
                                 <td style="padding: 15px 20px;">
                                     <?php if($view_all_divisions): ?>
                                         <span class="badge-divisi"><?= $row['nama_divisi'] ?></span><br>
                                     <?php endif; ?>
+
+                                    <?php if($is_incoming_req): ?>
+                                        <span class="badge-req" title="Tugas ini diminta oleh divisi lain">
+                                            🔔 Req dari: <?= htmlspecialchars($row['nama_divisi_req']) ?>
+                                        </span><br>
+                                    <?php elseif($is_outgoing_req): ?>
+                                        <span class="badge-req" style="background:#dbeafe; color:#1e40af; border-color:#93c5fd;">
+                                            📤 Req ke: <?= htmlspecialchars($row['nama_divisi']) ?>
+                                        </span><br>
+                                    <?php endif; ?>
+
                                     <span style="font-weight: 600; color: #334155;"><?= htmlspecialchars($row['nama_tugas']) ?></span>
                                 </td>
                                 
@@ -295,14 +318,15 @@ if (isset($_GET['hapus_notulensi'])) {
                                         <form method="POST" style="margin:0;">
                                             <input type="hidden" name="job_id" value="<?= $row['jobdesk_id'] ?>">
                                             <input type="hidden" name="status" value="<?= $current_status ?>">
-                                            <input type="hidden" name="keterangan" class="input-xs" value="<?= htmlspecialchars($current_keterangan) ?>"> 
+                                            <input type="hidden" name="keterangan" value="<?= htmlspecialchars($current_keterangan) ?>"> 
                                             <input type="hidden" name="update_jobdesk" value="1">
 
                                             <select name="pic_id" class="select-xs" onchange="this.form.submit()">
                                                 <option value="" style="color:red;">-- Belum Ada --</option>
                                                 <?php
-                                                $div_target = $row['divisi_id'];
-                                                $qMember = mysqli_query($conn, "SELECT u.user_id, u.nama_lengkap FROM anggota_divisi ad JOIN users u ON ad.user_id = u.user_id WHERE ad.divisi_id='$div_target'");
+                                                // Dropdown PIC = Anggota Divisi TARGET (Penerima Tugas)
+                                                $target_div = $row['divisi_id'];
+                                                $qMember = mysqli_query($conn, "SELECT u.user_id, u.nama_lengkap FROM anggota_divisi ad JOIN users u ON ad.user_id = u.user_id WHERE ad.divisi_id='$target_div'");
                                                 while($m = mysqli_fetch_assoc($qMember)):
                                                 ?>
                                                 <option value="<?= $m['user_id'] ?>" <?= $row['user_id'] == $m['user_id'] ? 'selected' : '' ?>><?= $m['nama_lengkap'] ?></option>
@@ -314,7 +338,7 @@ if (isset($_GET['hapus_notulensi'])) {
                                     <?php endif; ?>
                                 </td>
 
-                                <td><?= date('d M', strtotime($row['deadline'])) ?></td>
+                                <td><?= date('d M Y', strtotime($row['deadline'])) ?></td>
 
                                 <td>
                                     <?php if ($can_update_status): ?>
@@ -336,24 +360,17 @@ if (isset($_GET['hapus_notulensi'])) {
                                     <?php endif; ?>
                                 </td>
 
-                                <td>
+                                <td style="padding-right: 20px;">
                                     <?php if ($can_update_status): ?>
                                         <form method="POST" style="margin:0;">
                                             <input type="hidden" name="job_id" value="<?= $row['jobdesk_id'] ?>">
                                             <input type="hidden" name="pic_id" value="<?= $current_pic ?>">
                                             <input type="hidden" name="status" value="<?= $current_status ?>">
                                             <input type="hidden" name="update_jobdesk" value="1">
-                                            
-                                            <input type="text" name="keterangan" class="input-xs" 
-                                                   value="<?= htmlspecialchars($current_keterangan) ?>" 
-                                                   placeholder="Tulis ket..." 
-                                                   onchange="this.form.submit()"
-                                                   title="Tekan Enter untuk menyimpan">
+                                            <input type="text" name="keterangan" class="input-xs" value="<?= htmlspecialchars($current_keterangan) ?>" placeholder="Tulis ket..." onchange="this.form.submit()">
                                         </form>
                                     <?php else: ?>
-                                        <span style="font-size: 12px; color: #64748b; font-style: italic;">
-                                            <?= htmlspecialchars($current_keterangan) ?: '-' ?>
-                                        </span>
+                                        <span style="font-size: 12px; color: #64748b; font-style: italic;"><?= htmlspecialchars($current_keterangan) ?: '-' ?></span>
                                     <?php endif; ?>
                                 </td>
 
@@ -386,9 +403,7 @@ if (isset($_GET['hapus_notulensi'])) {
 
                 <?php
                 $sqlNote = "SELECT * FROM notulensi WHERE event_id='$id_event'";
-                if (!$view_all_divisions) {
-                    $sqlNote .= " AND (jenis_rapat = 'Rapat Umum' OR divisi_id = '$my_divisi')";
-                }
+                if (!$view_all_divisions) $sqlNote .= " AND (jenis_rapat = 'Rapat Umum' OR divisi_id = '$my_divisi')";
                 $sqlNote .= " ORDER BY tanggal_rapat DESC";
                 $qNote = mysqli_query($conn, $sqlNote);
 
@@ -416,14 +431,13 @@ if (isset($_GET['hapus_notulensi'])) {
                 </div>
                 <?php endwhile; ?>
             </div>
-
         </main>
     </div>
 
     <div id="modalTambahJob" class="modal-overlay" style="display: none;">
         <div class="modal-box" style="max-width: 500px;">
             <div class="modal-header">
-                <div class="modal-title">Buat Tugas Baru</div>
+                <div class="modal-title">Buat Jobdesk</div>
                 <button onclick="document.getElementById('modalTambahJob').style.display='none'" class="btn-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -431,28 +445,23 @@ if (isset($_GET['hapus_notulensi'])) {
                     <input type="hidden" name="tambah_jobdesk" value="1">
                     
                     <div class="form-group">
-                        <label class="form-label">Untuk Divisi</label>
-                        <select name="divisi_id" class="form-control" required>
-                            <?php if($view_all_divisions): ?>
-                                <?php 
-                                $qDivs = mysqli_query($conn, "SELECT * FROM divisi WHERE event_id='$id_event'");
-                                while($d = mysqli_fetch_assoc($qDivs)): ?>
-                                    <option value="<?= $d['divisi_id'] ?>"><?= $d['nama_divisi'] ?></option>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <option value="<?= $my_divisi ?>" selected><?= $my_divisi_name ?></option>
-                            <?php endif; ?>
+                        <label class="form-label">Divisi Tujuan</label>
+                        <select name="target_divisi" class="form-control" required>
+                            <?php 
+                            // Tampilkan semua divisi agar bisa request ke lain divisi
+                            $qDivModal = mysqli_query($conn, "SELECT * FROM divisi WHERE event_id='$id_event' ORDER BY nama_divisi ASC");
+                            while($d = mysqli_fetch_assoc($qDivModal)):
+                                $selected = ($d['divisi_id'] == $my_divisi) ? 'selected' : '';
+                                $label = ($d['divisi_id'] == $my_divisi) ?' (Divisi Saya)' : '';
+                            ?>
+                            <option value="<?= $d['divisi_id'] ?>" <?= $selected ?>><?= $d['nama_divisi'] . $label ?></option>
+                            <?php endwhile; ?>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Nama Tugas</label>
-                        <input type="text" name="nama_tugas" class="form-control" placeholder="Contoh: Survey Lokasi" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Deadline</label>
-                        <input type="date" name="deadline" class="form-control" required>
-                    </div>
+                    <div class="form-group"><label class="form-label">Nama Tugas</label><input type="text" name="nama_tugas" class="form-control" placeholder="Contoh: Desain Banner" required></div>
+                    <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Keterangan Awal (Opsional)</label><textarea name="keterangan" class="form-control" rows="2" placeholder="Detail request..."></textarea></div>
                     <button type="submit" class="btn-login">Simpan Tugas</button>
                 </form>
             </div>
@@ -469,15 +478,8 @@ if (isset($_GET['hapus_notulensi'])) {
                 <form method="POST">
                     <input type="hidden" name="edit_jobdesk_full" value="1">
                     <input type="hidden" name="job_id" id="edit_job_id">
-                    
-                    <div class="form-group">
-                        <label class="form-label">Nama Tugas</label>
-                        <input type="text" name="nama_tugas" id="edit_job_nama" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Deadline</label>
-                        <input type="date" name="deadline" id="edit_job_deadline" class="form-control" required>
-                    </div>
+                    <div class="form-group"><label class="form-label">Nama Tugas</label><input type="text" name="nama_tugas" id="edit_job_nama" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Deadline</label><input type="date" name="deadline" id="edit_job_deadline" class="form-control" required></div>
                     <button type="submit" class="btn-login">Simpan Perubahan</button>
                 </form>
             </div>
@@ -493,19 +495,14 @@ if (isset($_GET['hapus_notulensi'])) {
             <div class="modal-body">
                 <form method="POST">
                     <input type="hidden" name="simpan_notulensi" value="1">
-                    <div class="form-group">
-                        <label class="form-label">Jenis Rapat</label>
+                    <div class="form-group"><label class="form-label">Jenis Rapat</label>
                         <select name="jenis" class="form-control" required>
-                            <?php if($view_all_divisions): ?>
-                                <option value="Rapat Umum">Rapat Umum (Semua Divisi)</option>
-                            <?php endif; ?>
-                            <?php if($my_divisi_name): ?>
-                                <option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option>
-                            <?php endif; ?>
+                            <?php if($view_all_divisions): ?><option value="Rapat Umum">Rapat Umum (Semua Divisi)</option><?php endif; ?>
+                            <?php if($my_divisi_name): ?><option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option><?php endif; ?>
                             <option value="Rapat Koordinasi">Rapat Koordinasi</option>
                         </select>
                     </div>
-                    <div class="form-group"><label class="form-label">Judul Rapat</label><input type="text" name="judul" class="form-control" required placeholder="Cth: Koordinasi Teknis"></div>
+                    <div class="form-group"><label class="form-label">Judul Rapat</label><input type="text" name="judul" class="form-control" required></div>
                     <div class="form-group"><label class="form-label">Tanggal</label><input type="datetime-local" name="tanggal" class="form-control" required></div>
                     <div class="form-group"><label class="form-label">Isi Pembahasan</label><textarea name="isi" class="form-control" rows="6" required></textarea></div>
                     <button type="submit" class="btn-login">Simpan</button>
@@ -558,7 +555,15 @@ if (isset($_GET['hapus_notulensi'])) {
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('tab') === 'notulensi') bukaTab('notulensi');
 
-        // JS MODAL NOTULENSI
+        // JS MODAL JOBDESK
+        function openEditJob(id, nama, deadline) {
+            document.getElementById('modalEditJob').style.display = 'flex';
+            document.getElementById('edit_job_id').value = id;
+            document.getElementById('edit_job_nama').value = nama;
+            document.getElementById('edit_job_deadline').value = deadline;
+        }
+
+        // JS MODAL NOTULENSI (YANG HILANG TADI)
         function openEditNotulen(id, judul, tanggal, jenis, isi) {
             document.getElementById('modalEditNotulen').style.display = 'flex';
             document.getElementById('edit_id').value = id;
@@ -568,15 +573,6 @@ if (isset($_GET['hapus_notulensi'])) {
             document.getElementById('edit_isi').value = isi;
         }
 
-        // JS MODAL JOBDESK (BARU)
-        function openEditJob(id, nama, deadline) {
-            document.getElementById('modalEditJob').style.display = 'flex';
-            document.getElementById('edit_job_id').value = id;
-            document.getElementById('edit_job_nama').value = nama;
-            document.getElementById('edit_job_deadline').value = deadline;
-        }
-
-        // FEEDBACK ALERTS
         if(urlParams.get('msg') === 'job_added') alert('✅ Tugas baru berhasil ditambahkan!');
         if(urlParams.get('msg') === 'job_edited') alert('✅ Info tugas berhasil diperbarui!');
         if(urlParams.get('msg') === 'job_deleted') alert('🗑️ Tugas berhasil dihapus.');
