@@ -1,6 +1,8 @@
 <?php
 session_start();
-require '../config/koneksi.php'; 
+require '../config/koneksi.php';
+
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // Cek Login
 if (!isset($_SESSION['role'])) {
@@ -19,8 +21,8 @@ if (isset($_POST['simpan'])) {
     $deskripsi  = mysqli_real_escape_string($conn, $_POST['deskripsi']);
     
     // Nama variabel PHP ini diambil dari name="" di form HTML
-    $tgl_mulai_input  = $_POST['tgl_mulai']; 
-    $tgl_selesai_input= $_POST['tgl_selesai'];
+    $tgl_mulai_input   = mysqli_real_escape_string($conn, $_POST['tgl_mulai']);
+    $tgl_selesai_input = mysqli_real_escape_string($conn, $_POST['tgl_selesai']);
     
     $status = 'active'; // Sesuaikan dengan ENUM di database ('pending', 'active', etc)
     $jumlah_divisi = 0;

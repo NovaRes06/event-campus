@@ -2,6 +2,8 @@
 session_start(); 
 require '../config/koneksi.php'; // 1. Panggil koneksi database
 
+$current_page = basename($_SERVER['PHP_SELF']);
+
 // Cek keamanan
 if (!isset($_SESSION['role']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'ketua')) {
     header("Location: ../index.php");

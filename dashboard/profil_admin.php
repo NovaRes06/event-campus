@@ -2,6 +2,8 @@
 session_start();
 require '../config/koneksi.php';
 
+$current_page = basename($_SERVER['PHP_SELF']);
+
 // Cek hanya Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: ../index.php");

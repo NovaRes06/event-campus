@@ -2,6 +2,8 @@
 session_start();
 require '../config/koneksi.php'; // Hubungkan ke database
 
+$current_page = basename($_SERVER['PHP_SELF']);
+
 // Cek keamanan
 if (!isset($_SESSION['role'])) {
     header("Location: ../index.php");
@@ -49,7 +51,7 @@ if (isset($_POST['simpan'])) {
 
 // --- LOGIKA HAPUS DATA ---
 if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
+    $id = intval($_GET['hapus']);
     $query = "DELETE FROM users WHERE user_id='$id'";
     
     if (mysqli_query($conn, $query)) {

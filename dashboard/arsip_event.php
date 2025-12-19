@@ -2,6 +2,8 @@
 session_start();
 require '../config/koneksi.php';
 
+$current_page = basename($_SERVER['PHP_SELF']);
+
 if (!isset($_SESSION['role'])) { header("Location: ../index.php"); exit; }
 $id_user = $_SESSION['user_id'];
 $my_role = $_SESSION['role'];
@@ -9,7 +11,7 @@ $is_admin = ($my_role == 'admin');
 
 // --- LOGIC HAPUS EVENT (KHUSUS ADMIN) ---
 if ($is_admin && isset($_GET['hapus'])) {
-    $id_hapus = $_GET['hapus'];
+    $id_hapus = intval($_GET['hapus']);
     $qHapus = mysqli_query($conn, "DELETE FROM events WHERE event_id='$id_hapus'");
     if ($qHapus) {
         echo "<script>alert('Event berhasil dihapus permanen!'); window.location='arsip_event.php';</script>";

@@ -2,6 +2,8 @@
 session_start();
 require '../config/koneksi.php';
 
+$current_page = basename($_SERVER['PHP_SELF']);
+
 // Cek hanya Admin yang boleh masuk sini
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: ../index.php");
@@ -10,7 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 
 // --- LOGIKA HAPUS EVENT (BARU) ---
 if (isset($_GET['hapus'])) {
-    $id_hapus = $_GET['hapus'];
+    $id_hapus = intval($_GET['hapus']);
     // Database sudah ON DELETE CASCADE, jadi divisi, jobdesk, & notulensi terkait otomatis terhapus
     $qHapus = mysqli_query($conn, "DELETE FROM events WHERE event_id='$id_hapus'");
     if ($qHapus) {
