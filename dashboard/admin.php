@@ -67,7 +67,11 @@ $totalDone = $dataDone['total'];
 
                 <a href="data_anggota.php" class="menu-item">
                     <i class="ph-bold ph-users-three"></i> Data Anggota
-                </a> 
+                </a>
+
+                <a href="profil_admin.php" class="menu-item">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
                 
                 <div class="menu-logout">
                     <a href="../logout.php" class="menu-item" style="color: #ef4444;">
