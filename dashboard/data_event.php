@@ -43,6 +43,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
             <nav>
                 <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
                 <a href="data_event.php" class="menu-item active"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
+                <a href="arsip_event.php" class="menu-item"><i class="ph-bold ph-archive-box"></i> Arsip Event</a>
                 <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
                 <a href="profil_admin.php" class="menu-item"><i class="ph-bold ph-user-gear"></i> Profil Saya</a>
                 <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
@@ -72,7 +73,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
                             $cekKolom = mysqli_query($conn, "SHOW COLUMNS FROM events LIKE 'tanggal_mulai'");
                             $orderBy = (mysqli_num_rows($cekKolom) > 0) ? "tanggal_mulai" : "event_id";
 
-                            $query = mysqli_query($conn, "SELECT * FROM events ORDER BY $orderBy DESC");
+                            $query = mysqli_query($conn, "SELECT * FROM events WHERE status IN ('upcoming', 'active') ORDER BY $orderBy DESC");
 
                             if ($query && mysqli_num_rows($query) > 0) {
                                 while ($row = mysqli_fetch_assoc($query)) {
