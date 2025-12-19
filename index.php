@@ -1,65 +1,49 @@
 <?php
 session_start();
-// Cek file koneksi
-if (file_exists('config/koneksi.php')) {
-    include 'config/koneksi.php';
-} else {
-    // Fallback jika path berbeda
-    $conn = false; 
-}
+require 'config/koneksi.php';
+
+// Inisialisasi variabel agar tidak muncul "Undefined Variable"
+$error = ""; 
 
 // Redirect jika sudah login
 if (isset($_SESSION['status']) && $_SESSION['status'] == "login") {
-    if ($_SESSION['role'] == 'admin') {
-        header("Location: dashboard/admin.php");
-    } else {
-        header("Location: dashboard/anggota.php");
-    }
+    if ($_SESSION['role'] == 'admin') header("Location: dashboard/admin.php");
+    else header("Location: dashboard/anggota.php");
     exit;
 }
 
-$error = "";
-
 if (isset($_POST['login'])) {
-    if (!$conn) {
-        $error = "Error: Koneksi database tidak terhubung.";
-    } else {
-        $email = mysqli_real_escape_string($conn, $_POST['email']);
-        $password = $_POST['password'];
-        
-        // --- LOGIKA MD5 ---
-        // Karena database sudah di-convert ke MD5, input user juga harus di-MD5
-        $password_md5 = md5($password);
+    $email = $_POST['email'];
+    $password = md5($_POST['password']);
 
-        $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email' AND password='$password_md5'");
-        
-        if (mysqli_num_rows($query) > 0) {
-            $data = mysqli_fetch_assoc($query);
-            
-            $_SESSION['user_id'] = $data['user_id'];
-            $_SESSION['nama'] = $data['nama_lengkap'];
-            $_SESSION['role'] = $data['peran'];
-            $_SESSION['status'] = "login";
+    // POIN 2: Menggunakan Prepared Statements agar aman dari SQL Injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
+    $stmt->bind_param("ss", $email, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-            if ($data['peran'] == 'admin') {
-                header("Location: dashboard/admin.php");
-            } else {
-                // --- LOGIC BARU SESUAI ERD ---
-                if ($data['perlu_ganti_pass'] == 1) {
-                    // Jika user baru, paksa ke profil dan suruh ganti password
-                    echo "<script>
-                        alert('Demi keamanan, User Baru WAJIB mengganti password default!');
-                        window.location='dashboard/profil_anggota.php?wajib_ganti=1';
-                    </script>";
-                } else {
-                    header("Location: dashboard/anggota.php");
-                }
-            }
+    if ($result->num_rows > 0) {
+        $data = $result->fetch_assoc();
+        
+        $_SESSION['user_id'] = $data['user_id'];
+        $_SESSION['nama'] = $data['nama_lengkap'];
+        $_SESSION['role'] = $data['peran'];
+        $_SESSION['status'] = "login";
+
+        // POIN 1: Perbaikan Redireksi Profil Berdasarkan Role
+        if ($data['perlu_ganti_pass'] == 1) {
+            $target = ($data['peran'] == 'admin') ? "dashboard/profil_admin.php" : "dashboard/profil_anggota.php";
+            header("Location: $target?wajib_ganti=1");
             exit;
-        } else {
-            $error = "Email atau Password salah.";
         }
+
+        if ($data['peran'] == 'admin') header("Location: dashboard/admin.php");
+        else header("Location: dashboard/anggota.php");
+        exit;
+    } else {
+        $error = "Email atau Password salah.";
     }
+    $stmt->close();
 }
 ?>
 

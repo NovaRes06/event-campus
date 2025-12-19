@@ -63,41 +63,32 @@ if (isset($_POST['tambah_anggota'])) {
     $divisi_id = $_POST['divisi_id']; 
     $jabatan   = $_POST['jabatan'];
 
-    // 1. LOGIC BPH: Jika Ketua/Wakil, Paksa Masuk Divisi BPH
-    if ($jabatan == 'Ketua' || $jabatan == 'Wakil Ketua') {
-        $qBPH = mysqli_query($conn, "SELECT divisi_id FROM divisi WHERE event_id='$id_event' AND nama_divisi='BPH'");
-        $rowBPH = mysqli_fetch_assoc($qBPH);
-        
-        if ($rowBPH) {
-            $divisi_id = $rowBPH['divisi_id']; 
-        } else {
-            mysqli_query($conn, "INSERT INTO divisi (event_id, nama_divisi) VALUES ('$id_event', 'BPH')");
-            $divisi_id = mysqli_insert_id($conn);
-        }
-    }
-
-    // 2. CEK APAKAH USER SUDAH TERDAFTAR DI EVENT INI (DIVISI MANAPUN)
-    // Kita join ke tabel divisi untuk memastikan pengecekan hanya di event ID yang sedang diedit
-    $cekDouble = mysqli_query($conn, "
+    // 1. CEK APAKAH USER SUDAH TERDAFTAR DI EVENT INI (Lintas Divisi)
+    $stmtCek = $conn->prepare("
         SELECT d.nama_divisi, ad.jabatan 
         FROM anggota_divisi ad
         JOIN divisi d ON ad.divisi_id = d.divisi_id
-        WHERE ad.user_id = '$user_id' 
-        AND d.event_id = '$id_event'
+        WHERE ad.user_id = ? AND d.event_id = ?
     ");
+    $stmtCek->bind_param("ii", $user_id, $id_event);
+    $stmtCek->execute();
+    $resDouble = $stmtCek->get_result();
 
-    if (mysqli_num_rows($cekDouble) > 0) {
-        // Jika sudah ada, TAMPILKAN ERROR & JANGAN SIMPAN
-        $existing = mysqli_fetch_assoc($cekDouble);
-        $div_lama = $existing['nama_divisi'];
-        $jab_lama = $existing['jabatan'];
-        
-        echo "<script>
-            alert('GAGAL: User ini sudah terdaftar sebagai $jab_lama di Divisi $div_lama. Satu orang hanya boleh memegang satu jabatan per event.');
-        </script>";
+    if ($resDouble->num_rows > 0) {
+        $existing = $resDouble->fetch_assoc();
+        echo "<script>alert('GAGAL: User ini sudah terdaftar sebagai {$existing['jabatan']} di Divisi {$existing['nama_divisi']}. Satu orang hanya boleh satu jabatan per event!');</script>";
     } else {
-        // 3. Jika Belum Ada, Baru Simpan
-        mysqli_query($conn, "INSERT INTO anggota_divisi (user_id, divisi_id, jabatan) VALUES ('$user_id', '$divisi_id', '$jabatan')");
+        // 2. LOGIC BPH: Jika Ketua/Wakil, Paksa Masuk Divisi BPH
+        if ($jabatan == 'Ketua' || $jabatan == 'Wakil Ketua') {
+            $qBPH = mysqli_query($conn, "SELECT divisi_id FROM divisi WHERE event_id='$id_event' AND nama_divisi='BPH'");
+            $rowBPH = mysqli_fetch_assoc($qBPH);
+            $divisi_id = $rowBPH['divisi_id']; 
+        }
+
+        $stmtIns = $conn->prepare("INSERT INTO anggota_divisi (user_id, divisi_id, jabatan) VALUES (?, ?, ?)");
+        $stmtIns->bind_param("iis", $user_id, $divisi_id, $jabatan);
+        $stmtIns->execute();
+        echo "<script>window.location='edit_event.php?id=$id_event&msg=member_added';</script>";
     }
 }
 

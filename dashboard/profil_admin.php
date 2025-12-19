@@ -10,39 +10,42 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 
 $id_user = $_SESSION['user_id'];
 
-// --- LOGIC UPDATE PROFIL ADMIN ---
+// --- LETAKKAN LOGIC UPDATE DISINI ---
 if (isset($_POST['update_profil'])) {
-    $nama = mysqli_real_escape_string($conn, $_POST['nama_lengkap']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $nama = $_POST['nama_lengkap'];
+    $email = $_POST['email'];
     $pass_baru = $_POST['password_baru'];
     
-    // 1. Cek Email Kembar (Admin boleh ganti email, jadi perlu validasi)
-    $cekEmail = mysqli_query($conn, "SELECT user_id FROM users WHERE email = '$email' AND user_id != '$id_user'");
-    
-    if (mysqli_num_rows($cekEmail) > 0) {
-        echo "<script>alert('Gagal! Email ini sudah digunakan oleh akun lain.');</script>";
+    // Cek duplikat email
+    $stmtCek = $conn->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
+    $stmtCek->bind_param("si", $email, $id_user);
+    $stmtCek->execute();
+    if ($stmtCek->get_result()->num_rows > 0) {
+        echo "<script>alert('Email sudah digunakan!');</script>";
     } else {
-        // 2. Query Dasar
-        $query = "UPDATE users SET nama_lengkap='$nama', email='$email'";
-        
-        // 3. Jika Password Diisi
         if (!empty($pass_baru)) {
             $hash = md5($pass_baru);
-            $query .= ", password='$hash'";
+            // Reset flag ganti pass otomatis jadi 0 saat password diubah
+            $stmt = $conn->prepare("UPDATE users SET nama_lengkap=?, email=?, password=?, perlu_ganti_pass=0 WHERE user_id=?");
+            $stmt->bind_param("sssi", $nama, $email, $hash, $id_user);
+        } else {
+            // Jika dia sedang mode wajib ganti tapi tidak isi password
+            if (isset($_GET['wajib_ganti'])) {
+                echo "<script>alert('Anda HARUS mengisi password baru!'); window.location='profil_admin.php?wajib_ganti=1';</script>";
+                exit;
+            }
+            $stmt = $conn->prepare("UPDATE users SET nama_lengkap=?, email=? WHERE user_id=?");
+            $stmt->bind_param("ssi", $nama, $email, $id_user);
         }
         
-        $query .= " WHERE user_id='$id_user'";
-        
-        if (mysqli_query($conn, $query)) {
+        if ($stmt->execute()) {
             $_SESSION['nama'] = $nama;
-            echo "<script>alert('Profil Admin berhasil diperbarui!'); window.location='profil_admin.php';</script>";
-        } else {
-            echo "<script>alert('Gagal update: " . mysqli_error($conn) . "');</script>";
+            echo "<script>alert('Profil berhasil diperbarui!'); window.location='profil_admin.php';</script>";
         }
     }
 }
 
-// Ambil Data Admin Terbaru
+// Ambil Data Admin Terbaru untuk ditampilkan di form
 $qUser = mysqli_query($conn, "SELECT * FROM users WHERE user_id='$id_user'");
 $user = mysqli_fetch_assoc($qUser);
 ?>
@@ -121,6 +124,13 @@ $user = mysqli_fetch_assoc($qUser);
         </aside>
 
         <main class="main-content">
+
+            <?php if(isset($_GET['wajib_ganti'])): ?>
+                <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #f87171;">
+                    <strong>⚠️ PERHATIAN:</strong> Akun Admin Anda masih menggunakan password default. Silakan buat password baru di bawah ini untuk mengaktifkan menu lainnya.
+                </div>
+                <style>.sidebar nav { pointer-events: none; opacity: 0.5; }</style>
+            <?php endif; ?>
             
             <h1 style="margin-bottom: 30px;">Pengaturan Akun Admin ⚙️</h1>
 
