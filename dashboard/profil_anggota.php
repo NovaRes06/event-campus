@@ -123,7 +123,7 @@ $user = mysqli_fetch_assoc($qUser);
             <style>.sidebar nav { pointer-events: none; opacity: 0.5; }</style>
             <?php endif; ?>
             
-            <h1 style="margin-bottom: 30px;">Pengaturan Akun ⚙️</h1>
+            <h1 style="margin-bottom: 30px;">Profil Saya</h1>
 
             <div class="profile-container">
                 

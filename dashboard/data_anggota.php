@@ -64,7 +64,7 @@ if (isset($_GET['hapus'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Data Anggota - E-PANITIA</title>
+    <title>Kelola Users - E-PANITIA</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=105">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
@@ -83,6 +83,13 @@ if (isset($_GET['hapus'])) {
         .modal-overlay { z-index: 9999 !important; }
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
+        .role-badge { background: #fee2e2; color: #991b1b; }
+        .role-badge-large {
+            background: #fee2e2; color: #991b1b; 
+            padding: 8px 20px; border-radius: 30px; 
+            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -97,22 +104,36 @@ if (isset($_GET['hapus'])) {
                 <span class="role-badge">Administrator</span>
             </div>
             <nav>
-                <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
-                <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                <a href="data_anggota.php" class="menu-item active"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                <a href="profil_admin.php" class="menu-item"><i class="ph-bold ph-user-gear"></i> Profil Saya</a>
-                <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-calendar-plus"></i> Data Event
+                </a>
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
+                <div class="menu-logout">
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
+                        <i class="ph-bold ph-sign-out"></i> Logout
+                    </a>
+                </div>
             </nav>
         </aside>
 
         <main class="main-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <div>
-                    <h1>Manajemen Anggota 👥</h1>
-                    <p style="color: #64748b;">Kelola akun mahasiswa dan panitia.</p>
+                    <h1>Kelola Data Pengguna</h1>
                 </div>
-                <button onclick="openModal()" class="btn-login" style="width: auto; padding: 12px 25px;">
-                    <i class="ph-bold ph-user-plus"></i> Tambah Anggota
+                <button onclick="openModal()" class="btn-login" style="width: auto; padding: auto;">
+                    <i class="ph-bold ph-user-plus"></i> Tambah Akun
                 </button>
             </div>
 

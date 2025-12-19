@@ -35,11 +35,13 @@ if (isset($_POST['login'])) {
             $target = ($data['peran'] == 'admin') ? "dashboard/profil_admin.php" : "dashboard/profil_anggota.php";
             header("Location: $target?wajib_ganti=1");
             exit;
+        } elseif ($data['peran'] == 'admin') {
+            header("Location: dashboard/admin.php");
+        } else {
+            header("Location: dashboard/anggota.php");
         }
-
-        if ($data['peran'] == 'admin') header("Location: dashboard/admin.php");
-        else header("Location: dashboard/anggota.php");
         exit;
+
     } else {
         $error = "Email atau Password salah.";
     }

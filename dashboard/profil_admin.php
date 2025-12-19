@@ -97,8 +97,8 @@ $user = mysqli_fetch_assoc($qUser);
 </head>
 <body>
 
-    <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-4"></div>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
         
@@ -109,12 +109,21 @@ $user = mysqli_fetch_assoc($qUser);
             </div>
             
             <nav>
-                <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
-                <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                
-                <a href="profil_admin.php" class="menu-item active"><i class="ph-bold ph-user-gear"></i> Profil Saya</a>
-                
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-calendar-plus"></i> Data Event
+                </a>
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
                 <div class="menu-logout">
                     <a href="../logout.php" class="menu-item" style="color: #ef4444;">
                         <i class="ph-bold ph-sign-out"></i> Logout
@@ -132,7 +141,7 @@ $user = mysqli_fetch_assoc($qUser);
                 <style>.sidebar nav { pointer-events: none; opacity: 0.5; }</style>
             <?php endif; ?>
             
-            <h1 style="margin-bottom: 30px;">Pengaturan Akun Admin ⚙️</h1>
+            <h1 style="margin-bottom: 30px;">Profil Saya</h1>
 
             <div class="profile-container">
                 

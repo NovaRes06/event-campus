@@ -7,16 +7,29 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: ../index.php");
     exit;
 }
+
+// --- LOGIKA HAPUS EVENT (BARU) ---
+if (isset($_GET['hapus'])) {
+    $id_hapus = $_GET['hapus'];
+    // Database sudah ON DELETE CASCADE, jadi divisi, jobdesk, & notulensi terkait otomatis terhapus
+    $qHapus = mysqli_query($conn, "DELETE FROM events WHERE event_id='$id_hapus'");
+    if ($qHapus) {
+        echo "<script>alert('Event berhasil dihapus permanen!'); window.location='data_event.php';</script>";
+    } else {
+        echo "<script>alert('Gagal hapus: " . mysqli_error($conn) . "');</script>";
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Manajemen Event</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=106">
+    <title>Manajemen Event Aktif</title>
+    <link rel="stylesheet" href="../assets/css/style.css?v=126">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        /* CSS Badge & Button */
         .badge-purple { background: #e0e7ff; color: #4338ca; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .badge-green { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .btn-kelola { 
@@ -25,12 +38,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
             cursor: pointer; border: none; transition: 0.2s;
         }
         .btn-pantau { background: #10b981; color: white; margin-right: 5px; }
-        .btn-pantau:hover { background: #059669; }
-        .btn-config { background: #6366f1; color: white; }
-        .btn-config:hover { background: #4f46e5; }
+        .btn-config { background: #6366f1; color: white; margin-right: 5px; }
+        .btn-del { background: #fee2e2; color: #ef4444; } /* Warna Merah utk Hapus */
+        .btn-del:hover { background: #fca5a5; color: #991b1b; }
         
+        /* Konsistensi Elemen Background */
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
+
+        .role-badge { background: #fee2e2; color: #991b1b; }
+        .role-badge-large {
+            background: #fee2e2; color: #991b1b; 
+            padding: 8px 20px; border-radius: 30px; 
+            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -39,21 +61,38 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
 
     <div class="dashboard-container">
         <aside class="sidebar">
-            <div class="sidebar-header"><h2 class="brand-title">E-PANITIA</h2></div>
+        <div class="sidebar-header">
+            <h2 class="brand-title">E-PANITIA</h2>
+            <span class="role-badge">Administrator</span>
+        </div>
             <nav>
-                <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
-                <a href="data_event.php" class="menu-item active"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                <a href="arsip_event.php" class="menu-item"><i class="ph-bold ph-archive-box"></i> Arsip Event</a>
-                <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                <a href="profil_admin.php" class="menu-item"><i class="ph-bold ph-user-gear"></i> Profil Saya</a>
-                <div class="menu-logout"><a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a></div>
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-calendar-plus"></i> Data Event
+                </a>
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
+                <div class="menu-logout">
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
+                        <i class="ph-bold ph-sign-out"></i> Logout
+                    </a>
+                </div>
             </nav>
         </aside>
 
         <main class="main-content">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <h1>Daftar Event 📅</h1>
-                <a href="tambah_event.php" class="btn-login" style="width: auto; padding: 15px 20px; font-size: 14px; text-decoration: none; display: inline-block;">+ Event Baru</a>
+                <h1>Event Aktif</h1>
+                <a href="tambah_event.php" class="btn-login" style="width: auto; padding: auto; font-size: 14px; text-decoration: none; display: inline-block;">+ Event Baru</a>
             </div>
 
             <div class="table-container" style="background: white; border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
@@ -61,53 +100,42 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
                     <thead style="background: white; border-bottom: 2px solid #f1f5f9;">
                         <tr>
                             <th width="30%" style="padding: 20px;">NAMA EVENT</th>
-                            <th width="20%">TANGGAL</th>
+                            <th width="15%">TANGGAL</th>
                             <th width="15%">STATUS</th>
-                            <th width="15%">JUMLAH DIVISI</th>
+                            <th width="15%">DIVISI</th>
                             <th width="20%">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        if (isset($conn)) {
-                            $cekKolom = mysqli_query($conn, "SHOW COLUMNS FROM events LIKE 'tanggal_mulai'");
-                            $orderBy = (mysqli_num_rows($cekKolom) > 0) ? "tanggal_mulai" : "event_id";
+                        $query = mysqli_query($conn, "SELECT * FROM events WHERE status IN ('upcoming', 'active') ORDER BY tanggal_mulai DESC");
 
-                            $query = mysqli_query($conn, "SELECT * FROM events WHERE status IN ('upcoming', 'active') ORDER BY $orderBy DESC");
-
-                            if ($query && mysqli_num_rows($query) > 0) {
-                                while ($row = mysqli_fetch_assoc($query)) {
-                                    $tgl = isset($row['tanggal_mulai']) ? date('d M Y', strtotime($row['tanggal_mulai'])) : '-';
-                                    $deskripsi = htmlspecialchars(substr($row['deskripsi'] ?? '', 0, 45));
-                                    $divisi = isset($row['jumlah_divisi']) ? $row['jumlah_divisi'] : 0; 
-                                    $statusClass = ($row['status'] == 'active') ? 'badge-purple' : 'badge-green';
+                        if ($query && mysqli_num_rows($query) > 0) {
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                $tgl = isset($row['tanggal_mulai']) ? date('d M Y', strtotime($row['tanggal_mulai'])) : '-';
+                                $statusClass = ($row['status'] == 'active') ? 'badge-purple' : 'badge-green';
                         ?>
                         <tr>
                             <td style="padding: 20px;">
-                                <div style="font-weight: bold; font-size: 14px; color: #334155;">
-                                    <?= htmlspecialchars($row['nama_event']); ?>
-                                </div>
-                                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                                    <?= $deskripsi; ?>...
-                                </div>
+                                <div style="font-weight: bold; font-size: 14px; color: #334155;"><?= htmlspecialchars($row['nama_event']); ?></div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 5px;"><?= htmlspecialchars(substr($row['deskripsi'], 0, 40)); ?>...</div>
                             </td>
                             <td style="font-size: 13px; color: #475569;"><?= $tgl; ?></td>
-                            <td><span class="<?= $statusClass; ?>"><?= $row['status']; ?></span></td>
-                            <td style="text-align: center; color: #475569;"><b><?= $divisi; ?></b> Divisi</td>
+                            <td><span class="<?= $statusClass; ?>"><?= strtoupper($row['status']); ?></span></td>
+                            <td style="text-align: center; color: #475569;"><b><?= $row['jumlah_divisi']; ?></b> Divisi</td>
                             <td>
-                                <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Lihat Dashboard Event">
-                                    <i class="ph-bold ph-eye"></i> Pantau
-                                </a>
-                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Edit Pengaturan Event">
-                                    <i class="ph-bold ph-gear"></i> Kelola
+                                <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>
+                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Kelola"><i class="ph-bold ph-gear"></i></a>
+                                
+                                <a href="data_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
+                                    <i class="ph-bold ph-trash"></i>
                                 </a>
                             </td>
                         </tr>
                         <?php 
-                                } 
-                            } else { 
-                                echo "<tr><td colspan='5' style='text-align:center; padding:50px; color:#94a3b8;'>Belum ada data event.</td></tr>";
-                            }
+                            } 
+                        } else { 
+                            echo "<tr><td colspan='5' style='text-align:center; padding:50px; color:#94a3b8;'>Tidak ada event berjalan.</td></tr>";
                         }
                         ?>
                     </tbody>

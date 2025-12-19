@@ -40,7 +40,15 @@ $totalDone = $dataDone['total'];
     <title>Admin Dashboard - E-PANITIA</title>
     
     <link rel="stylesheet" href="../assets/css/style.css?v=105">
-
+    <style>
+        .role-badge { background: #fee2e2; color: #991b1b; }
+        .role-badge-large {
+            background: #fee2e2; color: #991b1b; 
+            padding: 8px 20px; border-radius: 30px; 
+            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-top: 10px;
+        }
+    </style>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
@@ -57,22 +65,21 @@ $totalDone = $dataDone['total'];
             </div>
             
             <nav>
-                <a href="admin.php" class="menu-item active">
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
                     <i class="ph-bold ph-squares-four"></i> Dashboard
                 </a>
-
-                <a href="data_event.php" class="menu-item">
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
                     <i class="ph-bold ph-calendar-plus"></i> Data Event
                 </a>
-
-                <a href="data_anggota.php" class="menu-item">
-                    <i class="ph-bold ph-users-three"></i> Data Anggota
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
                 </a>
-
-                <a href="profil_admin.php" class="menu-item">
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
                     <i class="ph-bold ph-user-gear"></i> Profil Saya
                 </a>
-                
                 <div class="menu-logout">
                     <a href="../logout.php" class="menu-item" style="color: #ef4444;">
                         <i class="ph-bold ph-sign-out"></i> Logout

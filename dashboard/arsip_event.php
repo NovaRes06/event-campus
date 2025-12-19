@@ -27,18 +27,37 @@ if ($is_admin && isset($_GET['hapus'])) {
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .role-badge { background: #dbeafe; color: #1e40af; } 
+        .badge-purple { background: #e0e7ff; color: #4338ca; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-green { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .btn-kelola { 
+            padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; 
+            text-decoration: none; display: inline-flex; align-items: center; gap: 5px; 
+            cursor: pointer; border: none; transition: 0.2s;
+        }
+        .btn-pantau { background: #10b981; color: white; margin-right: 5px; }
+        .btn-config { background: #6366f1; color: white; margin-right: 5px; }
+        .btn-del { background: #fee2e2; color: #ef4444; } /* Warna Merah utk Hapus */
+        .btn-del:hover { background: #fca5a5; color: #991b1b; }
+        
+        /* Konsistensi Elemen Background */
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
+
+        .role-badge { background: #fee2e2; color: #991b1b; }
+        .role-badge-large {
+            background: #fee2e2; color: #991b1b; 
+            padding: 8px 20px; border-radius: 30px; 
+            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            display: inline-block; margin-top: 10px;
+        }
         .badge-gray { background: #f1f5f9; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .badge-red { background: #fee2e2; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .btn-del { color: #ef4444; background: #fee2e2; padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; margin-left: 10px; }
-        .btn-del:hover { background: #fca5a5; }
     </style>
 </head>
 <body>
-    <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-4"></div>
+
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
         <aside class="sidebar">
@@ -48,28 +67,33 @@ if ($is_admin && isset($_GET['hapus'])) {
             </div>
             
             <nav>
-                <?php if ($is_admin): ?>
-                    <a href="admin.php" class="menu-item"><i class="ph-bold ph-squares-four"></i> Dashboard</a>
-                    <a href="data_event.php" class="menu-item"><i class="ph-bold ph-calendar-plus"></i> Data Event</a>
-                    <a href="arsip_event.php" class="menu-item active"><i class="ph-bold ph-archive-box"></i> Arsip Event</a>
-                    <a href="data_anggota.php" class="menu-item"><i class="ph-bold ph-users-three"></i> Data Anggota</a>
-                    <a href="profil_admin.php" class="menu-item"><i class="ph-bold ph-user-gear"></i> Profil Saya</a>
-                <?php else: ?>
-                    <a href="anggota.php" class="menu-item"><i class="ph-bold ph-house"></i> Beranda</a>
-                    <a href="arsip_event.php" class="menu-item active"><i class="ph-bold ph-archive-box"></i> Arsip Event</a>
-                    <a href="profil_anggota.php" class="menu-item"><i class="ph-bold ph-user"></i> Profil</a>
-                <?php endif; ?>
-
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-calendar-plus"></i> Data Event
+                </a>
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
                 <div class="menu-logout">
-                    <a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a>
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
+                        <i class="ph-bold ph-sign-out"></i> Logout
+                    </a>
                 </div>
             </nav>
         </aside>
 
         <main class="main-content">
             <div style="margin-bottom: 30px;">
-                <h1 style="margin:0;">Arsip Event 📂</h1>
-                <p style="color: #64748b;"><?= $is_admin ? 'Manajemen seluruh riwayat event kampus.' : 'Riwayat event yang pernah kamu ikuti.' ?></p>
+                <h1 style="margin:0;">Arsip Event</h1>
+                <p style="color: #64748b;"><?= $is_admin ? 'Riwayat seluruh event yang telah selesai atau dibatalkan' : 'Riwayat event yang pernah kamu ikuti' ?></p>
             </div>
 
             <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
@@ -106,11 +130,12 @@ if ($is_admin && isset($_GET['hapus'])) {
                             <td><span class="<?= $badge ?>"><?= strtoupper($row['status']) ?></span></td>
                             <td style="color: #64748b; font-size: 13px;"><?= date('d M Y', strtotime($row['tanggal_selesai'])) ?></td>
                             <td>
-                                <a href="detail_event.php?id=<?= $row['event_id'] ?>" style="color: #6366f1; text-decoration: none; font-weight: 600; font-size: 13px;">Lihat</a>
+                                <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>
+                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Kelola"><i class="ph-bold ph-gear"></i></a>
                                 
-                                <?php if($is_admin): ?>
-                                    <a href="arsip_event.php?hapus=<?= $row['event_id'] ?>" class="btn-del" onclick="return confirm('⚠️ Hapus permanen event ini? Seluruh data jobdesk & divisi akan hilang!')">Hapus</a>
-                                <?php endif; ?>
+                                <a href="data_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
+                                    <i class="ph-bold ph-trash"></i>
+                                </a>
                             </td>
                         </tr>
                         <?php 

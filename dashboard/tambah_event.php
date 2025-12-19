@@ -61,13 +61,43 @@ if (isset($_POST['simpan'])) {
     <title>Tambah Event</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+    .bg-blob { pointer-events: none !important; z-index: 0 !important; }
+    .dashboard-container { position: relative; z-index: 10 !important; }
+    </style>
 </head>
 <body>
+
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-3"></div>
+
     <div class="dashboard-container">
         <aside class="sidebar">
-            <div class="sidebar-header"><h2 class="brand-title">E-PANITIA</h2></div>
+        <div class="sidebar-header">
+            <h2 class="brand-title">E-PANITIA</h2>
+            <span class="role-badge">Administrator</span>
+        </div>
             <nav>
-                <a href="data_event.php" class="menu-item active"><i class="ph-bold ph-arrow-left"></i> Kembali</a>
+                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-squares-four"></i> Dashboard
+                </a>
+                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-calendar-plus"></i> Data Event
+                </a>
+                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-archive-box"></i> Arsip Event
+                </a>
+                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-users-three"></i> Users
+                </a>
+                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
+                    <i class="ph-bold ph-user-gear"></i> Profil Saya
+                </a>
+                <div class="menu-logout">
+                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
+                        <i class="ph-bold ph-sign-out"></i> Logout
+                    </a>
+                </div>
             </nav>
         </aside>
 
