@@ -30,7 +30,7 @@ $id_user = $_SESSION['user_id'];
                 <p>Pilih event untuk melihat tugas dan notulensi.</p>
             </div>
 
-            <h3 style="margin-bottom: 20px;">Event Aktif Saya 🚀</h3>
+            <h3 style="margin-bottom: 20px;">Event Aktif</h3>
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
                 <?php
                 // Query Event Aktif yang diikuti user
@@ -53,6 +53,12 @@ $id_user = $_SESSION['user_id'];
                     <div class="event-body">
                         <span class="divisi-tag"><?= $row['nama_divisi'] ?> - <?= $row['jabatan'] ?></span>
                         <h3 style="font-size: 18px; margin-bottom: 5px;"><?= $row['nama_event'] ?></h3>
+                        
+                        <div style="font-size: 12px; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph-bold ph-calendar"></i> 
+                            <?= date('d M Y', strtotime($row['tanggal_mulai'])) ?> - <?= date('d M Y', strtotime($row['tanggal_selesai'])) ?>
+                        </div>
+
                         <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
                             <?= substr($row['deskripsi'], 0, 80) ?>...
                         </p>
