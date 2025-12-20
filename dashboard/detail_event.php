@@ -171,29 +171,6 @@ if (isset($_GET['hapus_notulensi'])) {
     <title>Dashboard <?= htmlspecialchars($info['nama_event']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css?v=119">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        .tabs { display: flex; gap: 20px; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; }
-        .tab-item { padding: 15px 20px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
-        .tab-item.active { color: #6366f1; border-bottom-color: #6366f1; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .badge-divisi { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
-        .badge-req { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 4px; }
-        
-        .status-Pending { color: #d97706; font-weight: 700; }
-        .status-Process { color: #2563eb; font-weight: 700; }
-        .status-Revision { color: #ea580c; font-weight: 700; }
-        .status-Done { color: #166534; font-weight: 700; }
-
-        .notulensi-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; transition: 0.2s; }
-        .notulensi-card:hover { border-color: #6366f1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
-        .action-icon { color: #94a3b8; cursor: pointer; text-decoration: none; margin-left: 8px; font-size: 14px; }
-        .action-icon:hover { color: #6366f1; }
-        .action-icon.trash:hover { color: #ef4444; }
-    </style>
 </head>
 <body>
     

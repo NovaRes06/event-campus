@@ -14,30 +14,6 @@ $id_user = $_SESSION['user_id'];
     <title>Beranda Anggota - E-Panitia</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-        
-        /* Card Event Custom */
-        .event-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
-            border: 1px solid #f1f5f9; display: flex; flex-direction: column;
-            height: 100%;
-        }
-        .event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .event-header { height: 100px; background: linear-gradient(135deg, #6366f1, #8b5cf6); position: relative; }
-        .event-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-        .event-badge { 
-            position: absolute; top: 15px; right: 15px; 
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); color: white;
-            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-        }
-        .divisi-tag {
-            background: #eff6ff; color: #2563eb; padding: 5px 10px; border-radius: 6px;
-            font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 10px;
-        }
-    </style>
 </head>
 <body>
     

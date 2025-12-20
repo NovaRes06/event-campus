@@ -82,10 +82,6 @@ if (isset($_POST['simpan'])) {
     <title>Tambah Event</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-    .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-    .dashboard-container { position: relative; z-index: 10 !important; }
-    </style>
 </head>
 <body>
 

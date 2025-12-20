@@ -28,12 +28,6 @@ if (isset($_GET['hapus'])) {
     <title>Manajemen Event Aktif</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=126">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        .btn-pantau { background: #10b981; color: white; margin-right: 5px; }
-        .btn-config { background: #6366f1; color: white; margin-right: 5px; }
-        .btn-del { background: #fee2e2; color: #ef4444; } /* Warna Merah utk Hapus */
-        .btn-del:hover { background: #fca5a5; color: #991b1b; }
-    </style>
 </head>
 <body>
     <div class="bg-blob blob-1"></div>

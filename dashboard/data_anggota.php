@@ -67,23 +67,6 @@ if (isset($_GET['hapus'])) {
     <title>Kelola Users - E-PANITIA</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=105">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <style>
-        .text-center { text-align: center !important; }
-        .text-left { text-align: left !important; }
-        .user-profile { display: flex; align-items: center; }
-        .role-tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-        .role-admin { background: #fee2e2; color: #991b1b; }
-        .role-anggota { background: #dbeafe; color: #1e40af; }
-        .action-container { position: relative; }
-        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; min-width: 150px; overflow: hidden; }
-        .show { display: block; }
-        .dropdown-item { display: block; padding: 10px; color: #333; text-decoration: none; font-size: 13px; text-align: left; }
-        .dropdown-item:hover { background: #f8fafc; }
-        .modal-overlay { z-index: 9999 !important; }
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-    </style>
 </head>
 <body>
 

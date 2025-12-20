@@ -58,30 +58,6 @@ $user = mysqli_fetch_assoc($qUser);
     
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <style>
-        .profile-container {
-            background: white; border-radius: 20px; padding: 40px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            display: grid; grid-template-columns: 300px 1fr; gap: 50px; align-items: start;
-        }
-        .profile-left { text-align: center; padding-right: 50px; border-right: 1px solid #f1f5f9; }
-        
-        .avatar-large {
-            width: 150px; height: 150px;
-            /* Gradient Admin sedikit beda biar keren (Merah-Orange) */
-            background: linear-gradient(135deg, #f43f5e, #fb923c); 
-            color: white; font-size: 60px; font-weight: 700;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px; box-shadow: 0 15px 30px rgba(244, 63, 94, 0.3); border: 5px solid #fff;
-        }
-        
-        .profile-right h3 { margin-bottom: 25px; color: #1e293b; font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-
-        /* Helper input password eye */
-        .input-wrapper { position: relative; }
-        .toggle-password { position: absolute; right: 15px; top: 12px; cursor: pointer; color: #94a3b8; font-size: 20px; }
-    </style>
 </head>
 <body>
 
