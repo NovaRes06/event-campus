@@ -489,7 +489,6 @@ if (isset($_GET['hapus_notulensi'])) {
                         <select name="jenis" class="form-control" required>
                             <?php if($view_all_divisions): ?><option value="Rapat Umum">Rapat Umum (Semua Divisi)</option><?php endif; ?>
                             <?php if($my_divisi_name): ?><option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option><?php endif; ?>
-                            <option value="Rapat Koordinasi">Rapat Koordinasi</option>
                         </select>
                     </div>
                     <div class="form-group"><label class="form-label">Judul Rapat</label><input type="text" name="judul" class="form-control" required></div>
@@ -521,7 +520,6 @@ if (isset($_GET['hapus_notulensi'])) {
                             <?php if($my_divisi_name): ?>
                                 <option value="Rapat Divisi">Rapat Internal Divisi <?= htmlspecialchars($my_divisi_name) ?></option>
                             <?php endif; ?>
-                            <option value="Rapat Koordinasi">Rapat Koordinasi</option>
                         </select>
                     </div>
                     <div class="form-group"><label class="form-label">Judul Rapat</label><input type="text" name="judul_notulen" id="edit_judul" class="form-control" required></div>
