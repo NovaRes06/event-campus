@@ -6,9 +6,9 @@ require '../config/koneksi.php';
 if (!isset($_SESSION['role'])) { header("Location: ../index.php"); exit; }
 
 $id_user = $_SESSION['user_id'];
-$id_event = isset($_GET['id']) ? $_GET['id'] : '';
+$id_event = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-if (!$id_event) { header("Location: data_event.php"); exit; }
+if ($id_event === 0) { header("Location: data_event.php"); exit; }
 
 // --- LOGIKA HAK AKSES ---
 $is_admin_global = ($_SESSION['role'] == 'admin');
@@ -129,16 +129,7 @@ $data = mysqli_fetch_assoc($query_event);
     <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="sidebar-header"><h2 class="brand-title">E-PANITIA</h2></div>
-            <nav>
-                <?php if($is_admin_global): ?>
-                    <a href="data_event.php" class="menu-item active"><i class="ph-bold ph-arrow-left"></i> Kembali (Admin)</a>
-                <?php else: ?>
-                    <a href="detail_event.php?id=<?= $id_event ?>" class="menu-item active"><i class="ph-bold ph-arrow-left"></i> Kembali (Dashboard)</a>
-                <?php endif; ?>
-            </nav>
-        </aside>
+        <?php include 'sidebar_common.php'; ?>
 
         <main class="main-content">
             <h1 style="margin-bottom: 20px;">Control Center: <?= $data['nama_event'] ?> ⚙️</h1>
@@ -188,7 +179,11 @@ $data = mysqli_fetch_assoc($query_event);
                                 $q_div = mysqli_query($conn, "SELECT * FROM divisi WHERE event_id='$id_event'");
                                 $id_bph_js = ""; 
                                 
-                                if(mysqli_num_rows($q_div) == 0) echo "<tr><td colspan='2'>Belum ada divisi.</td></tr>";
+                                if(mysqli_num_rows($q_div) > 0) {
+                                    mysqli_data_seek($q_div, 0);
+                                } else {
+                                    echo "<tr><td colspan='2'>Belum ada divisi.</td></tr>";
+                                }
                                 while($row_d = mysqli_fetch_assoc($q_div)):
                                     if($row_d['nama_divisi'] == 'BPH') $id_bph_js = $row_d['divisi_id'];
                                 ?>

@@ -5,7 +5,11 @@ require '../config/koneksi.php';
 if (!isset($_SESSION['role'])) { header("Location: ../index.php"); exit; }
 
 $id_user = $_SESSION['user_id'];
-$id_event = isset($_GET['id']) ? $_GET['id'] : '';
+$id_event = isset($_GET['id']) ? intval($_GET['id']) : 0;
+if ($id_event === 0) {
+    echo "<script>alert('ID Event tidak valid!'); window.location='anggota.php';</script>";
+    exit;
+}
 $my_role_global = $_SESSION['role']; 
 
 // 1. Ambil Info Event & Role User
@@ -198,35 +202,7 @@ if (isset($_GET['hapus_notulensi'])) {
     <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
-        
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2 class="brand-title">E-PANITIA</h2>
-                <span class="role-badge"><?= $my_role_global == 'admin' ? 'SYSTEM ADMIN' : ($my_jabatan == 'Ketua' ? 'KETUA' : ($my_jabatan == 'Sekretaris' ? 'SEKRETARIS' : ($my_jabatan == 'Bendahara' ? 'BENDAHARA' : 'ANGGOTA'))) ?></span>
-            </div>
-            
-            <a href="<?= $my_role_global == 'admin' ? 'admin.php' : 'anggota.php' ?>" class="btn-kelola" style="margin-bottom: 20px; background: #94a3b8;">
-                <i class="ph-bold ph-arrow-left"></i> Kembali
-            </a>
-
-            <?php if($is_super_admin || $is_ketua_event): ?>
-            <a href="edit_event.php?id=<?= $id_event ?>" class="btn-kelola" style="margin-bottom: 20px; background: #6366f1; width: 100%; justify-content: center;">
-                <i class="ph-bold ph-gear"></i> Pengaturan Event
-            </a>
-            <?php endif; ?>
-
-            <div style="padding: 20px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid white;">
-                <small style="text-transform: uppercase; font-weight: 700; color: #64748b;">Event Saat Ini</small>
-                <h3 style="font-size: 16px; margin: 5px 0; color: #1e293b;"><?= htmlspecialchars($info['nama_event']) ?></h3>
-                <?php if($is_super_admin): ?>
-                    <div class="divisi-tag" style="background:#fcd34d; color:#92400e; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Mode Admin</div>
-                <?php elseif($is_ketua_event): ?>
-                    <div class="divisi-tag" style="background:#c084fc; color:#fff; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Ketua Pelaksana</div>
-                <?php else: ?>
-                    <div class="divisi-tag" style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:5px 5px 5px 10px; margin-top:10px; border-radius:5px; font-size:11px;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
-                <?php endif; ?>
-            </div>
-        </aside>
+        <?php include 'sidebar_common.php'; ?>
 
         <main class="main-content">
             

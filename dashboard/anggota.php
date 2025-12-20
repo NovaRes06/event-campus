@@ -46,30 +46,7 @@ $id_user = $_SESSION['user_id'];
     <div class="bg-blob blob-4"></div>
 
     <div class="dashboard-container">
-        
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2 class="brand-title">E-PANITIA</h2>
-                <span class="role-badge">Anggota</span>
-            </div>
-            
-            <nav>
-                <a href="anggota.php" class="menu-item active">
-                    <i class="ph-bold ph-house"></i> Beranda
-                </a>
-                
-                <a href="arsip_event.php" class="menu-item">
-                    <i class="ph-bold ph-archive-box"></i> Arsip Event
-                </a>
-
-                <a href="profil_anggota.php" class="menu-item">
-                    <i class="ph-bold ph-user"></i> Profil
-                </a>
-                <div class="menu-logout">
-                    <a href="../logout.php" class="menu-item" style="color: #ef4444;"><i class="ph-bold ph-sign-out"></i> Logout</a>
-                </div>
-            </nav>
-        </aside>
+        <?php include 'sidebar_common.php'; ?>
 
         <main class="main-content">
             

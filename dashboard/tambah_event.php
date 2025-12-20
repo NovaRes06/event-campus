@@ -2,8 +2,6 @@
 session_start();
 require '../config/koneksi.php';
 
-$current_page = basename($_SERVER['PHP_SELF']);
-
 // Cek Login
 if (!isset($_SESSION['role'])) {
     header("Location: ../index.php");
@@ -23,6 +21,14 @@ if (isset($_POST['simpan'])) {
     // Nama variabel PHP ini diambil dari name="" di form HTML
     $tgl_mulai_input   = mysqli_real_escape_string($conn, $_POST['tgl_mulai']);
     $tgl_selesai_input = mysqli_real_escape_string($conn, $_POST['tgl_selesai']);
+
+    if ($tgl_selesai_input < $tgl_mulai_input) {
+        echo "<script>alert('Error: Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai!');</script>";
+    } else {
+        // Pindahkan query INSERT dan logika simpan ke dalam blok 'else' ini
+        $status = 'active'; 
+        // ... dst (kode insert kamu yang lama) ...
+    }
     
     $status = 'active'; // Sesuaikan dengan ENUM di database ('pending', 'active', etc)
     $jumlah_divisi = 0;
@@ -74,34 +80,7 @@ if (isset($_POST['simpan'])) {
     <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
-        <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2 class="brand-title">E-PANITIA</h2>
-            <span class="role-badge">Administrator</span>
-        </div>
-            <nav>
-                <a href="admin.php" class="menu-item <?= ($current_page == 'admin.php') ? 'active' : '' ?>">
-                    <i class="ph-bold ph-squares-four"></i> Dashboard
-                </a>
-                <a href="data_event.php" class="menu-item <?= ($current_page == 'data_event.php') ? 'active' : '' ?>">
-                    <i class="ph-bold ph-calendar-plus"></i> Data Event
-                </a>
-                <a href="arsip_event.php" class="menu-item <?= ($current_page == 'arsip_event.php') ? 'active' : '' ?>">
-                    <i class="ph-bold ph-archive-box"></i> Arsip Event
-                </a>
-                <a href="data_anggota.php" class="menu-item <?= ($current_page == 'data_anggota.php') ? 'active' : '' ?>">
-                    <i class="ph-bold ph-users-three"></i> Users
-                </a>
-                <a href="profil_admin.php" class="menu-item <?= ($current_page == 'profil_admin.php') ? 'active' : '' ?>">
-                    <i class="ph-bold ph-user-gear"></i> Profil Saya
-                </a>
-                <div class="menu-logout">
-                    <a href="../logout.php" class="menu-item" style="color: #ef4444;">
-                        <i class="ph-bold ph-sign-out"></i> Logout
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <?php include 'sidebar_common.php'; ?>
 
         <main class="main-content">
             <h1 style="margin-bottom: 20px;">Buat Event Baru ✨</h1>
