@@ -133,17 +133,6 @@ while ($row = mysqli_fetch_assoc($qCek)) {
     <title>Kelola Event - <?= htmlspecialchars($info['nama_event']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css?v=115">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        .section-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .grid-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; align-items: start; }
-        @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
-        .mini-table { width: 100%; border-collapse: collapse; }
-        .mini-table th { background: #f8fafc; padding: 10px; font-size: 12px; text-align: left; color: #64748b; font-weight: 700; }
-        .mini-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-        option.opt-bph { font-weight: bold; color: #d97706; background: #fffbeb; }
-    </style>
 </head>
 <body>
 

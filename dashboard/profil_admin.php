@@ -60,9 +60,6 @@ $user = mysqli_fetch_assoc($qUser);
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        /* Menggunakan style yang sama persis dengan profil_anggota.php */
-        .role-badge { background: #fee2e2; color: #991b1b; } /* Merah untuk Admin */
-        
         .profile-container {
             background: white; border-radius: 20px; padding: 40px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
@@ -77,13 +74,6 @@ $user = mysqli_fetch_assoc($qUser);
             color: white; font-size: 60px; font-weight: 700;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px; box-shadow: 0 15px 30px rgba(244, 63, 94, 0.3); border: 5px solid #fff;
-        }
-        
-        .role-badge-large {
-            background: #fee2e2; color: #991b1b; 
-            padding: 8px 20px; border-radius: 30px; 
-            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-block; margin-top: 10px;
         }
         
         .profile-right h3 { margin-bottom: 25px; color: #1e293b; font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }

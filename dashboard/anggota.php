@@ -15,7 +15,6 @@ $id_user = $_SESSION['user_id'];
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .role-badge { background: #dbeafe; color: #1e40af; } 
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
         

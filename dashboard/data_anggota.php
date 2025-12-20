@@ -83,13 +83,6 @@ if (isset($_GET['hapus'])) {
         .modal-overlay { z-index: 9999 !important; }
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
-        .role-badge { background: #fee2e2; color: #991b1b; }
-        .role-badge-large {
-            background: #fee2e2; color: #991b1b; 
-            padding: 8px 20px; border-radius: 30px; 
-            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-block; margin-top: 10px;
-        }
     </style>
 </head>
 <body>

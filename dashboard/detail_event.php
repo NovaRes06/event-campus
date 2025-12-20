@@ -164,10 +164,6 @@ if (isset($_GET['hapus_notulensi'])) {
     <link rel="stylesheet" href="../assets/css/style.css?v=119">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .role-badge { background: #dbeafe; color: #1e40af; }
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-
         .tabs { display: flex; gap: 20px; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; }
         .tab-item { padding: 15px 20px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-item.active { color: #6366f1; border-bottom-color: #6366f1; }

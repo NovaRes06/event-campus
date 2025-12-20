@@ -40,15 +40,6 @@ $totalDone = $dataDone['total'];
     <title>Admin Dashboard - E-PANITIA</title>
     
     <link rel="stylesheet" href="../assets/css/style.css?v=105">
-    <style>
-        .role-badge { background: #fee2e2; color: #991b1b; }
-        .role-badge-large {
-            background: #fee2e2; color: #991b1b; 
-            padding: 8px 20px; border-radius: 30px; 
-            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-block; margin-top: 10px;
-        }
-    </style>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>

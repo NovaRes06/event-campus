@@ -172,8 +172,6 @@ td {
 tr:hover td { background-color: #f8fafc; }
 
 /* Badge Status */
-.badge-purple { background: #e0e7ff; color: #4338ca; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-.badge-green { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .badge-gray { background: #f1f5f9; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
 /* Tombol Aksi */
@@ -331,4 +329,54 @@ tr:hover td { background-color: #f8fafc; }
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center; 
     font-weight: 700; font-size: 12px;
+}
+
+/* --- CSS Tambahan untuk Manajemen Event --- */
+.section-title { 
+    font-size: 16px; 
+    font-weight: 700; 
+    color: #1e293b; 
+    margin-bottom: 15px; 
+    border-bottom: 2px solid #f1f5f9; 
+    padding-bottom: 10px; 
+}
+
+.grid-layout { 
+    display: grid; 
+    grid-template-columns: 1fr 1.5fr; 
+    gap: 30px; 
+    align-items: start; 
+}
+
+@media (max-width: 900px) { 
+    .grid-layout { grid-template-columns: 1fr; } 
+}
+
+.mini-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.mini-table th { 
+    background: #f8fafc; 
+    padding: 10px; 
+    font-size: 12px; 
+    text-align: left; 
+    color: #64748b; 
+    font-weight: 700; 
+}
+
+.mini-table td { 
+    padding: 10px; 
+    border-bottom: 1px solid #f1f5f9; 
+    font-size: 13px; 
+    color: #334155; 
+}
+
+/* Opsi tambahan untuk select dan input kecil agar seragam */
+.select-xs, .input-xs { 
+    padding: 6px 10px; 
+    border-radius: 6px; 
+    border: 1px solid #cbd5e1; 
+    font-size: 12px; 
 }

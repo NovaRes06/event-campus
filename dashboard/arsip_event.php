@@ -27,8 +27,6 @@ if ($is_admin && isset($_GET['hapus'])) {
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .badge-purple { background: #e0e7ff; color: #4338ca; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .badge-green { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .btn-kelola { 
             padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; 
             text-decoration: none; display: inline-flex; align-items: center; gap: 5px; 
@@ -43,13 +41,6 @@ if ($is_admin && isset($_GET['hapus'])) {
         .bg-blob { pointer-events: none !important; z-index: 0 !important; }
         .dashboard-container { position: relative; z-index: 10 !important; }
 
-        .role-badge { background: #fee2e2; color: #991b1b; }
-        .role-badge-large {
-            background: #fee2e2; color: #991b1b; 
-            padding: 8px 20px; border-radius: 30px; 
-            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-block; margin-top: 10px;
-        }
         .badge-gray { background: #f1f5f9; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .badge-red { background: #fee2e2; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     </style>
