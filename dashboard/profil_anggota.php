@@ -66,8 +66,6 @@ $user = mysqli_fetch_assoc($qUser);
             margin: 0 auto 20px; box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); border: 5px solid #fff;
         }
         .profile-right h3 { margin-bottom: 25px; color: #1e293b; font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
     </style>
 </head>
 <body>

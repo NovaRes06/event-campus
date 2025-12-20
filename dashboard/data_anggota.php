@@ -98,7 +98,7 @@ if (isset($_GET['hapus'])) {
                 <div>
                     <h1>Kelola Data Pengguna</h1>
                 </div>
-                <button onclick="openModal()" class="btn-login" style="width: auto; padding: auto;">
+                <button onclick="openModal()" class="btn-login" style="width: auto;">
                     <i class="ph-bold ph-user-plus"></i> Tambah Akun
                 </button>
             </div>

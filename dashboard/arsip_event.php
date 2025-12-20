@@ -27,17 +27,11 @@ if ($is_admin && isset($_GET['hapus'])) {
     <link rel="stylesheet" href="../assets/css/style.css?v=110">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .btn-kelola { 
-            padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; 
-            text-decoration: none; display: inline-flex; align-items: center; gap: 5px; 
-            cursor: pointer; border: none; transition: 0.2s;
-        }
         .btn-pantau { background: #10b981; color: white; margin-right: 5px; }
         .btn-config { background: #6366f1; color: white; margin-right: 5px; }
         .btn-del { background: #fee2e2; color: #ef4444; } /* Warna Merah utk Hapus */
         .btn-del:hover { background: #fca5a5; color: #991b1b; }
         .badge-gray { background: #f1f5f9; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .badge-red { background: #fee2e2; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     </style>
 </head>
 <body>

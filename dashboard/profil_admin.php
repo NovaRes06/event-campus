@@ -77,9 +77,7 @@ $user = mysqli_fetch_assoc($qUser);
         }
         
         .profile-right h3 { margin-bottom: 25px; color: #1e293b; font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-        
+
         /* Helper input password eye */
         .input-wrapper { position: relative; }
         .toggle-password { position: absolute; right: 15px; top: 12px; cursor: pointer; color: #94a3b8; font-size: 20px; }

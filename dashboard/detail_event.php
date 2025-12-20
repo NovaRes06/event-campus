@@ -121,6 +121,14 @@ if (isset($_POST['update_jobdesk'])) {
     }
 }
 
+// 5. UPDATE KETERANGAN SAJA (VIA POPUP)
+if (isset($_POST['update_keterangan_job'])) {
+    $jid = intval($_POST['job_id']);
+    $ket = mysqli_real_escape_string($conn, $_POST['keterangan']);
+    
+    mysqli_query($conn, "UPDATE jobdesk SET keterangan='$ket' WHERE jobdesk_id='$jid'");
+    echo "<script>window.location='detail_event.php?id=$id_event&msg=job_status_updated';</script>";
+}
 
 // --- LOGIC CRUD NOTULENSI (LENGKAP) ---
 
@@ -329,17 +337,18 @@ if (isset($_GET['hapus_notulensi'])) {
                                 </td>
 
                                 <td style="padding-right: 20px;">
-                                    <?php if ($can_update_status): ?>
-                                        <form method="POST" style="margin:0;">
-                                            <input type="hidden" name="job_id" value="<?= $row['jobdesk_id'] ?>">
-                                            <input type="hidden" name="pic_id" value="<?= $current_pic ?>">
-                                            <input type="hidden" name="status" value="<?= $current_status ?>">
-                                            <input type="hidden" name="update_jobdesk" value="1">
-                                            <input type="text" name="keterangan" class="input-xs" value="<?= htmlspecialchars($current_keterangan) ?>" placeholder="Tulis ket..." onchange="this.form.submit()">
-                                        </form>
-                                    <?php else: ?>
-                                        <span style="font-size: 12px; color: #64748b; font-style: italic;"><?= htmlspecialchars($current_keterangan) ?: '-' ?></span>
-                                    <?php endif; ?>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                        <span style="font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="<?= htmlspecialchars($current_keterangan) ?>">
+                                            <?= htmlspecialchars($current_keterangan) ?: '<span style="opacity:0.5;">-</span>' ?>
+                                        </span>
+                                        
+                                        <?php if ($can_update_status): ?>
+                                            <button type="button" class="action-icon" style="border:none; background:none; color: #6366f1;" 
+                                                    onclick="openUpdateKeterangan('<?= $row['jobdesk_id'] ?>', `<?= addslashes($current_keterangan) ?>`)">
+                                                <i class="ph-bold ph-eye"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
 
                                 <td style="text-align: right; padding-right: 20px;">
@@ -470,6 +479,26 @@ if (isset($_GET['hapus_notulensi'])) {
         </div>
     </div>
 
+    <div id="modalKetJob" class="modal-overlay" style="display: none;">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <div class="modal-title">Update Keterangan Tugas</div>
+                <button onclick="document.getElementById('modalKetJob').style.display='none'" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <input type="hidden" name="update_keterangan_job" value="1">
+                    <input type="hidden" name="job_id" id="ket_job_id">
+                    <div class="form-group">
+                        <label class="form-label">Keterangan</label>
+                        <textarea name="keterangan" id="ket_job_text" class="form-control" rows="6" placeholder="Tulis detail progress atau catatan di sini..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-login">Simpan Keterangan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="modalNotulen" class="modal-overlay" style="display: none;">
         <div class="modal-box" style="max-width: 600px;">
             <div class="modal-header">
@@ -547,7 +576,14 @@ if (isset($_GET['hapus_notulensi'])) {
             document.getElementById('edit_job_deadline').value = deadline;
         }
 
-        // JS MODAL NOTULENSI (YANG HILANG TADI)
+        // JS MODAL KETERANGAN JOB
+        function openUpdateKeterangan(id, keterangan) {
+            document.getElementById('modalKetJob').style.display = 'flex';
+            document.getElementById('ket_job_id').value = id;
+            document.getElementById('ket_job_text').value = keterangan;
+        }
+
+        // JS MODAL NOTULENSI
         function openEditNotulen(id, judul, tanggal, jenis, isi) {
             document.getElementById('modalEditNotulen').style.display = 'flex';
             document.getElementById('edit_id').value = id;
