@@ -89,7 +89,6 @@ if ($is_admin && isset($_GET['hapus'])) {
                             <td style="color: #64748b; font-size: 13px;"><?= date('d M Y', strtotime($row['tanggal_selesai'])) ?></td>
                             <td>
                                 <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>
-                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Kelola"><i class="ph-bold ph-gear"></i></a>
                                 
                                 <a href="arsip_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
                                     <i class="ph-bold ph-trash"></i>
