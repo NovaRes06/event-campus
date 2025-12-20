@@ -12,33 +12,29 @@ $id_user = $_SESSION['user_id'];
 
 // --- LOGIC UPDATE PROFIL (UPDATED) ---
 if (isset($_POST['update_profil'])) {
-    $nama = mysqli_real_escape_string($conn, $_POST['nama_lengkap']);
+    $nama = $_POST['nama_lengkap'];
     $pass_baru = $_POST['password_baru'];
     
-    // Default Query (Ganti Nama Saja)
-    $query = "UPDATE users SET nama_lengkap='$nama' WHERE user_id='$id_user'";
-    
-    // Jika Password Diisi
     if (!empty($pass_baru)) {
-        $hash = md5($pass_baru); // Sesuai request MD5
-        
-        // UPDATE PASSWORD + MATIKAN perlu_ganti_pass
-        $query = "UPDATE users SET nama_lengkap='$nama', password='$hash', perlu_ganti_pass=0 WHERE user_id='$id_user'";
+        $hash = md5($pass_baru);
+        // Reset perlu_ganti_pass jadi 0 karena password sudah diperbarui
+        $stmt = $conn->prepare("UPDATE users SET nama_lengkap = ?, password = ?, perlu_ganti_pass = 0 WHERE user_id = ?");
+        $stmt->bind_param("ssi", $nama, $hash, $id_user);
     } else {
-        // Cek jika dia sedang dalam mode wajib ganti tapi tidak ngisi password
+        // Poin 6: Jika sedang mode 'wajib ganti', cegah simpan tanpa isi password
         if (isset($_GET['wajib_ganti'])) {
-            echo "<script>alert('Anda HARUS mengisi password baru!');</script>";
-            // Stop eksekusi agar tidak lanjut
-            exit; // Atau redirect balik
+            echo "<script>alert('Anda HARUS mengisi password baru!'); window.location='profil_anggota.php?wajib_ganti=1';</script>";
+            exit;
         }
+        $stmt = $conn->prepare("UPDATE users SET nama_lengkap = ? WHERE user_id = ?");
+        $stmt->bind_param("si", $nama, $id_user);
     }
     
-    if (mysqli_query($conn, $query)) {
+    if ($stmt->execute()) {
         $_SESSION['nama'] = $nama;
         echo "<script>alert('Profil berhasil diperbarui!'); window.location='profil_anggota.php';</script>";
-    } else {
-        echo "<script>alert('Gagal update: " . mysqli_error($conn) . "');</script>";
     }
+    $stmt->close();
 }
 
 // Ambil Data User Terbaru

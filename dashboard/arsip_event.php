@@ -115,7 +115,7 @@ if ($is_admin && isset($_GET['hapus'])) {
                             $sql = "SELECT * FROM events WHERE status IN ('completed', 'cancelled', 'archived') ORDER BY tanggal_selesai DESC";
                         } else {
                             // Anggota: Hanya yang ia ikuti
-                            $sql = "SELECT e.* FROM events e 
+                            $sql = "SELECT DISTINCT e.* FROM events e 
                                     JOIN divisi d ON e.event_id = d.event_id 
                                     JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id 
                                     WHERE ad.user_id = '$id_user' AND e.status IN ('completed', 'cancelled') 

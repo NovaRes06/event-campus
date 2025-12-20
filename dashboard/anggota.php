@@ -83,7 +83,7 @@ $id_user = $_SESSION['user_id'];
                 <?php
                 // Query Event Aktif yang diikuti user
                 $qActive = mysqli_query($conn, "
-                    SELECT e.*, d.nama_divisi, ad.jabatan 
+                    SELECT DISTINCT e.*, d.nama_divisi, ad.jabatan 
                     FROM events e
                     JOIN divisi d ON e.event_id = d.event_id
                     JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id

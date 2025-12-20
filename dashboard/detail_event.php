@@ -36,13 +36,14 @@ $is_super_admin = ($my_role_global == 'admin');
 $is_ketua_event = ($my_jabatan == 'Ketua');
 $is_koordinator = ($my_jabatan == 'Koordinator');
 $is_sekretaris  = ($my_jabatan == 'Sekretaris');
+$is_bendahara = ($my_jabatan == 'Bendahara');
 
 if (!$is_super_admin && $my_jabatan == null) {
     echo "<script>alert('Akses ditolak!'); window.location='anggota.php';</script>";
     exit;
 }
 
-$view_all_divisions = ($is_super_admin || $is_ketua_event);
+$view_all_divisions = ($is_super_admin || $is_ketua_event || $is_sekretaris || $is_bendahara);
 
 
 // --- LOGIC CRUD JOBDESK ---

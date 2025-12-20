@@ -299,14 +299,13 @@ $data = mysqli_fetch_assoc($query_event);
 
     <script>
         function autoSelectBPH() {
+            const jabatansInti = ['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara'];
             const jabatan = document.getElementById('selectJabatan').value;
             const selectDivisi = document.getElementById('selectDivisi');
             const idBPH = "<?= $id_bph_js ?>"; 
 
-            if (jabatan === 'Ketua' || jabatan === 'Wakil Ketua') {
-                if (idBPH) {
-                    selectDivisi.value = idBPH;
-                }
+            if (jabatansInti.includes(jabatan)) {
+                if (idBPH) selectDivisi.value = idBPH;
             }
         }
     </script>
