@@ -110,7 +110,7 @@ if (isset($_GET['hapus'])) {
                 </button>
             </div>
 
-            <div class="table-container" style="background: white; border-radius: 12px; overflow: visible; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div class="table-container" style="background: white; border-radius: 12px; padding: 0;overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
                 <table style="width: 100%;">
                     <thead style="background: white; border-bottom: 2px solid #f1f5f9;">
                         <tr>

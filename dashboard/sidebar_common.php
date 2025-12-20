@@ -5,31 +5,43 @@ $id_event_uri = isset($_GET['id']) ? $_GET['id'] : '';
 
 // Cek apakah sedang di halaman Workspace (Detail/Edit)
 $is_workspace = ($current_page == 'detail_event.php' || $current_page == 'edit_event.php');
+
+if ($current_page == 'edit_event.php') {
+    $link_kembali = "detail_event.php?id=" . $id_event_uri;
+} else {
+    $link_kembali = ($role == 'admin') ? 'data_event.php' : 'anggota.php';
+}
 ?>
 
 <aside class="sidebar">
     <div class="sidebar-header">
         <h2 class="brand-title">E-PANITIA</h2>
-        <span class="role-badge">
+        <span class="role-badge <?= ($role == 'admin') ? 'role-admin' : 'role-anggota' ?>">
             <?= ($role == 'admin') ? 'Administrator' : 'Anggota' ?>
         </span>
     </div>
     
     <nav>
         <?php if ($is_workspace): ?>
-            <a href="<?= ($role == 'admin') ? 'data_event.php' : 'anggota.php' ?>" class="btn-kelola" style="margin-bottom: 20px; background: #94a3b8; justify-content: center;">
+            <a href="<?= $link_kembali ?>" class="btn-kelola" style="margin-bottom: 20px; background: #94a3b8; justify-content: center; text-decoration: none;">
                 <i class="ph-bold ph-arrow-left"></i> Kembali
             </a>
 
             <?php if (isset($info)): // Jika variabel $info (data event) tersedia ?>
                 <div style="padding: 15px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid white; margin-bottom: 20px;">
-                    <small style="text-transform: uppercase; font-weight: 700; color: #64748b; font-size: 10px;">Event Saat Ini</small>
-                    <h3 style="font-size: 14px; margin: 5px 0; color: #1e293b;"><?= htmlspecialchars($info['nama_event']) ?></h3>
+                    <small style="text-transform: uppercase; font-weight: 700; color: #64748b; font-size: 10px; display: block; margin-bottom: 5px;">Event Saat Ini</small>
+                    <h3 style="font-size: 14px; margin: 0 0 10px 0; color: #1e293b; line-height: 1.4;"><?= htmlspecialchars($info['nama_event']) ?></h3>
                     
+                    <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.05); margin-bottom: 10px;">
+                    
+                    <small style="text-transform: uppercase; font-weight: 700; color: #64748b; font-size: 10px; display: block; margin-bottom: 5px;">Peran Anda</small>
                     <?php if ($role == 'admin'): ?>
-                        <div style="background:#fcd34d; color:#92400e; font-weight:700; padding:4px 8px; border-radius:5px; font-size:10px; display:inline-block;">Mode Admin</div>
-                    <?php elseif (isset($my_divisi_name)): ?>
-                        <div style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:4px 8px; border-radius:5px; font-size:10px; display:inline-block;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
+                        <div style="background:#fcd34d; color:#92400e; font-weight:700; padding:4px 8px; border-radius:5px; font-size:10px; display:inline-block;">System Admin</div>
+                    <?php elseif (isset($my_jabatan)): ?>
+                        <div style="color: #1e293b; font-size: 12px; font-weight: 600; margin-bottom: 2px;">
+                            <?= htmlspecialchars($my_jabatan) ?>
+                        </div>
+                        <div style="background:#e0e7ff; color:#4338ca; font-weight:700; padding:3px 8px; border-radius:5px; font-size:10px; display:inline-block;">Divisi <?= htmlspecialchars($my_divisi_name) ?></div>
                     <?php endif; ?>
                 </div>
 
@@ -70,10 +82,12 @@ $is_workspace = ($current_page == 'detail_event.php' || $current_page == 'edit_e
             <?php endif; ?>
         <?php endif; ?>
 
-        <div class="menu-logout">
+    </nav>
+
+    <div class="menu-logout">
             <a href="../logout.php" class="menu-item" style="color: #ef4444;">
                 <i class="ph-bold ph-sign-out"></i> Logout
             </a>
         </div>
-    </nav>
+
 </aside>

@@ -97,9 +97,7 @@ if (isset($_GET['hapus'])) {
                             <td><span class="<?= $statusClass; ?>"><?= strtoupper($row['status']); ?></span></td>
                             <td style="text-align: center; color: #475569;"><b><?= $row['jumlah_divisi']; ?></b> Divisi</td>
                             <td>
-                                <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>
-                                <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Kelola"><i class="ph-bold ph-gear"></i></a>
-                                
+                                <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>     
                                 <a href="data_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
                                     <i class="ph-bold ph-trash"></i>
                                 </a>

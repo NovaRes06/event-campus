@@ -82,6 +82,18 @@ body {
     background: #e2e8f0; color: #64748b; padding: 6px 15px; border-radius: 20px; letter-spacing: 1.5px;
 }
 
+/* Warna khusus untuk badge Admin */
+.role-admin { 
+    background: #fee2e2 !important; 
+    color: #991b1b !important; 
+}
+
+/* Warna khusus untuk badge Anggota */
+.role-anggota { 
+    background: #dbeafe !important; 
+    color: #1e40af !important; 
+}
+
 /* Item Menu */
 nav { display: flex; flex-direction: column; gap: 5px; }
 
@@ -103,7 +115,7 @@ nav { display: flex; flex-direction: column; gap: 5px; }
 }
 
 /* Jarak buat menu logout */
-.menu-logout { margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 25px; }
+.menu-logout { margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 25px; }
 .menu-logout a { color: #ef4444; font-weight: 600; }
 .menu-logout a:hover { background: #fee2e2; }
 

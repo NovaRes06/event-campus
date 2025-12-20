@@ -100,15 +100,37 @@ if (isset($_GET['hapus_anggota'])) {
 }
 
 // --- AMBIL DATA ---
-$query_event = mysqli_query($conn, "SELECT * FROM events WHERE event_id='$id_event'");
-$data = mysqli_fetch_assoc($query_event);
+// --- GANTIKAN BLOK INI ---
+// --- AMBIL DATA EVENT & ROLE USER (Sama seperti detail_event agar Sidebar sinkron) ---
+$qCek = mysqli_query($conn, "
+    SELECT e.*, d.divisi_id, d.nama_divisi, ad.jabatan 
+    FROM events e
+    JOIN divisi d ON e.event_id = d.event_id
+    LEFT JOIN anggota_divisi ad ON d.divisi_id = ad.divisi_id AND ad.user_id = '$id_user'
+    WHERE e.event_id = '$id_event'
+");
+
+$info = null;
+$my_divisi = null;
+$my_jabatan = null;
+$my_divisi_name = "";
+
+while ($row = mysqli_fetch_assoc($qCek)) {
+    if ($info === null) $info = $row; 
+    if ($row['jabatan'] != null) {
+        $my_divisi = $row['divisi_id'];
+        $my_jabatan = $row['jabatan'];
+        $my_divisi_name = $row['nama_divisi'];
+    }
+}
+// -------------------------
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Kelola Event - <?= htmlspecialchars($data['nama_event']) ?></title>
+    <title>Kelola Event - <?= htmlspecialchars($info['nama_event']) ?></title>
     <link rel="stylesheet" href="../assets/css/style.css?v=115">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
@@ -125,14 +147,14 @@ $data = mysqli_fetch_assoc($query_event);
 </head>
 <body>
 
-    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-3"></div>
 
     <div class="dashboard-container">
         <?php include 'sidebar_common.php'; ?>
 
         <main class="main-content">
-            <h1 style="margin-bottom: 20px;">Control Center: <?= $data['nama_event'] ?> ⚙️</h1>
+            <h1 style="margin-bottom: 20px;">Control Center: <?= $info['nama_event'] ?> ⚙️</h1>
             
             <div class="grid-layout">
                 <div class="login-card" style="margin: 0; text-align: left; width: 100%; max-width: 100%;">
@@ -140,24 +162,24 @@ $data = mysqli_fetch_assoc($query_event);
                     <form method="POST">
                         <div class="form-group">
                             <label class="form-label">Nama Event</label>
-                            <input type="text" name="nama_event" class="form-control" required value="<?= $data['nama_event'] ?>">
+                            <input type="text" name="nama_event" class="form-control" required value="<?= $info['nama_event'] ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Deskripsi</label>
-                            <textarea name="deskripsi" class="form-control" rows="3"><?= $data['deskripsi'] ?></textarea>
+                            <textarea name="deskripsi" class="form-control" rows="3"><?= $info['deskripsi'] ?></textarea>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="form-group"><label class="form-label">Tgl Mulai</label><input type="date" name="tgl_mulai" class="form-control" value="<?= $data['tanggal_mulai'] ?>"></div>
-                            <div class="form-group"><label class="form-label">Tgl Selesai</label><input type="date" name="tgl_selesai" class="form-control" value="<?= $data['tanggal_selesai'] ?>"></div>
+                            <div class="form-group"><label class="form-label">Tgl Mulai</label><input type="date" name="tgl_mulai" class="form-control" value="<?= $info['tanggal_mulai'] ?>"></div>
+                            <div class="form-group"><label class="form-label">Tgl Selesai</label><input type="date" name="tgl_selesai" class="form-control" value="<?= $info['tanggal_selesai'] ?>"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-control">
-                                <option value="upcoming" <?= $data['status']=='upcoming'?'selected':'' ?>>Upcoming</option>
-                                <option value="active" <?= $data['status']=='active'?'selected':'' ?>>Active</option>
-                                <option value="completed" <?= $data['status']=='completed'?'selected':'' ?>>Completed</option>
-                                <option value="cancelled" <?= $data['status']=='cancelled'?'selected':'' ?>>Cancelled</option>
-                                <option value="archived" <?= $data['status']=='archived'?'selected':'' ?>>Archived</option>
+                                <option value="upcoming" <?= $info['status']=='upcoming'?'selected':'' ?>>Upcoming</option>
+                                <option value="active" <?= $info['status']=='active'?'selected':'' ?>>Active</option>
+                                <option value="completed" <?= $info['status']=='completed'?'selected':'' ?>>Completed</option>
+                                <option value="cancelled" <?= $info['status']=='cancelled'?'selected':'' ?>>Cancelled</option>
+                                <option value="archived" <?= $info['status']=='archived'?'selected':'' ?>>Archived</option>
                             </select>
                         </div>
                         <button type="submit" name="update_event" class="btn-login" style="padding: 12px;">Simpan Perubahan Info</button>
