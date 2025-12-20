@@ -51,7 +51,7 @@ if (isset($_POST['tambah_divisi'])) {
 
 // C. Hapus Divisi
 if (isset($_GET['hapus_divisi'])) {
-    $id_div = $_GET['hapus_divisi'];
+    $id_div = intval($_GET['hapus_divisi']);
     mysqli_query($conn, "DELETE FROM divisi WHERE divisi_id='$id_div'");
     mysqli_query($conn, "UPDATE events SET jumlah_divisi = (SELECT COUNT(*) FROM divisi WHERE event_id='$id_event') WHERE event_id='$id_event'");
     echo "<script>window.location='edit_event.php?id=$id_event';</script>";
@@ -94,13 +94,11 @@ if (isset($_POST['tambah_anggota'])) {
 
 // E. Hapus Anggota
 if (isset($_GET['hapus_anggota'])) {
-    $id_ad = $_GET['hapus_anggota'];
+    $id_ad = intval($_GET['hapus_anggota']);
     mysqli_query($conn, "DELETE FROM anggota_divisi WHERE anggota_id='$id_ad'");
     echo "<script>window.location='edit_event.php?id=$id_event';</script>";
 }
 
-// --- AMBIL DATA ---
-// --- GANTIKAN BLOK INI ---
 // --- AMBIL DATA EVENT & ROLE USER (Sama seperti detail_event agar Sidebar sinkron) ---
 $qCek = mysqli_query($conn, "
     SELECT e.*, d.divisi_id, d.nama_divisi, ad.jabatan 

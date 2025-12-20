@@ -23,11 +23,24 @@ if (isset($_POST['simpan'])) {
     $tgl_selesai_input = mysqli_real_escape_string($conn, $_POST['tgl_selesai']);
 
     if ($tgl_selesai_input < $tgl_mulai_input) {
-        echo "<script>alert('Error: Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai!');</script>";
+        echo "<script>alert('Error: Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai!'); window.history.back();</script>";
+        exit; // Berhenti di sini jika salah
     } else {
-        // Pindahkan query INSERT dan logika simpan ke dalam blok 'else' ini
         $status = 'active'; 
-        // ... dst (kode insert kamu yang lama) ...
+        $jumlah_divisi = 0;
+
+        $query = "INSERT INTO events (nama_event, deskripsi, tanggal_mulai, tanggal_selesai, status, jumlah_divisi) 
+                VALUES ('$nama_event', '$deskripsi', '$tgl_mulai_input', '$tgl_selesai_input', '$status', '$jumlah_divisi')";
+
+        if (mysqli_query($conn, $query)) {
+            $last_id = mysqli_insert_id($conn);
+            mysqli_query($conn, "INSERT INTO divisi (event_id, nama_divisi) VALUES ('$last_id', 'BPH')");
+            mysqli_query($conn, "UPDATE events SET jumlah_divisi = 1 WHERE event_id = '$last_id'");
+
+            echo "<script>alert('Event berhasil ditambahkan!'); window.location='data_event.php';</script>";
+        } else {
+            echo "<script>alert('Gagal menyimpan: " . mysqli_error($conn) . "');</script>";
+        }
     }
     
     $status = 'active'; // Sesuaikan dengan ENUM di database ('pending', 'active', etc)

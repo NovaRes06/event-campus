@@ -36,11 +36,6 @@ if ($is_admin && isset($_GET['hapus'])) {
         .btn-config { background: #6366f1; color: white; margin-right: 5px; }
         .btn-del { background: #fee2e2; color: #ef4444; } /* Warna Merah utk Hapus */
         .btn-del:hover { background: #fca5a5; color: #991b1b; }
-        
-        /* Konsistensi Elemen Background */
-        .bg-blob { pointer-events: none !important; z-index: 0 !important; }
-        .dashboard-container { position: relative; z-index: 10 !important; }
-
         .badge-gray { background: #f1f5f9; color: #64748b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .badge-red { background: #fee2e2; color: #991b1b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     </style>
@@ -96,7 +91,7 @@ if ($is_admin && isset($_GET['hapus'])) {
                                 <a href="detail_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-pantau" title="Pantau"><i class="ph-bold ph-eye"></i></a>
                                 <a href="edit_event.php?id=<?= $row['event_id']; ?>" class="btn-kelola btn-config" title="Kelola"><i class="ph-bold ph-gear"></i></a>
                                 
-                                <a href="data_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
+                                <a href="arsip_event.php?hapus=<?= $row['event_id']; ?>" class="btn-kelola btn-del" onclick="return confirm('⚠️ PERHATIAN: Menghapus event ini akan menghapus semua data divisi, jobdesk, dan notulensi di dalamnya. Lanjutkan?')" title="Hapus Permanen">
                                     <i class="ph-bold ph-trash"></i>
                                 </a>
                             </td>

@@ -171,11 +171,6 @@ if (isset($_GET['hapus_notulensi'])) {
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* TABLE & FORM STYLES */
-        .select-xs { padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; background: white; max-width: 100%; width: 100%; cursor: pointer;}
-        .input-xs { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 100%; transition: 0.2s; }
-        .input-xs:focus { border-color: #6366f1; outline: none; background: #f8fafc; }
-        
         .badge-divisi { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
         .badge-req { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 4px; }
         
@@ -375,9 +370,15 @@ if (isset($_GET['hapus_notulensi'])) {
                 </div>
 
                 <?php
-                $sqlNote = "SELECT * FROM notulensi WHERE event_id='$id_event'";
-                if (!$view_all_divisions) $sqlNote .= " AND (jenis_rapat = 'Rapat Umum' OR divisi_id = '$my_divisi')";
-                $sqlNote .= " ORDER BY tanggal_rapat DESC";
+                // Menggunakan n.* untuk data notulensi dan d.nama_divisi untuk nama divisinya
+                $sqlNote = "SELECT n.*, d.nama_divisi 
+                            FROM notulensi n 
+                            LEFT JOIN divisi d ON n.divisi_id = d.divisi_id 
+                            WHERE n.event_id='$id_event'";
+                if (!$view_all_divisions) {
+                    $sqlNote .= " AND (n.jenis_rapat = 'Rapat Umum' OR n.divisi_id = '$my_divisi')";
+                }
+                $sqlNote .= " ORDER BY n.tanggal_rapat DESC";
                 $qNote = mysqli_query($conn, $sqlNote);
 
                 if(mysqli_num_rows($qNote) == 0) echo "<p style='color:#94a3b8; text-align:center;'>Belum ada notulensi.</p>";
@@ -389,7 +390,17 @@ if (isset($_GET['hapus_notulensi'])) {
                 ?>
                 <div class="notulensi-card">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="<?= $badgeType ?> padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;"><?= $note['jenis_rapat'] ?></span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="<?= $badgeType ?> padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                                <?= $note['jenis_rapat'] ?>
+                            </span>
+                            
+                            <?php if ($note['nama_divisi']): ?>
+                                <span class="badge-divisi" style="margin-bottom: 0; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                                    Divisi <?= htmlspecialchars($note['nama_divisi']) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
                         <span style="font-size: 12px; color: #64748b;"><?= date('d M Y, H:i', strtotime($note['tanggal_rapat'])) ?></span>
                     </div>
                     <h4 style="margin-bottom: 10px;"><?= htmlspecialchars($note['judul_notulen']) ?></h4>
